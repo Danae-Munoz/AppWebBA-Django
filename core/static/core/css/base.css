@@ -1,0 +1,227 @@
+:root {
+    --primary-color: #0066cc;
+    --primary-dark: #004d99;
+    --primary-light: rgba(0, 102, 204, 0.1);
+    --secondary-color: #ff7b00;
+    --dark-color: #1a2b4a;
+    --text-color: #4a5568;
+    --light-color: #f8fafc;
+    --border-color: #e2e8f0;
+    --white: #ffffff;
+    --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-color);
+    background-color: var(--white);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+
+    color: var(--dark-color);
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+    transition: var(--transition);
+}
+
+.navbar.scrolled {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+
+    color: var(--dark-color);
+    transition: var(--transition);
+}
+
+.navbar-brand i {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    margin-right: 10px;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.brand-slogan {
+    font-size: 1rem;
+    opacity: 0.8;
+    color: var(--text-color);
+}
+
+.navbar-nav {
+    gap: 5px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px !important;
+    color: var(--dark-color) !important;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-light);
+}
+
+.nav-link.active {
+    color: var(--primary-color) !important;
+    position: relative;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+    right: 15px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: none;
+    box-shadow: var(--box-shadow);
+    border-radius: 8px;
+    padding: 10px 0;
+    margin-top: 10px;
+}
+
+.dropdown-item {
+    padding: 8px 20px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item i {
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding-top: 20px;
+    }
+    
+    .nav-link {
+        padding: 12px 0 !important;
+        border-radius: 0;
+    }
+    
+    .nav-link.active::after {
+        display: none;
+    }
+    
+    .dropdown-menu {
+        box-shadow: none;
+        border: none;
+        padding: 0;
+    }
+    
+    .dropdown-item {
+        padding-left: 45px;
+    }
+}
+
+/* Resto de tus estilos existentes... */
+.footer {
+    background-color: var(--dark-color);
+}
+
+.footer h5 {
+    position: relative;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.footer h5::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+.footer a {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer a:hover {
+    color: white;
+    padding-left: 5px;
+}
+
+.social-icons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-right: 0.5rem;
+    transition: var(--transition);
+}
+
+.social-icons a:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-3px);
+}
+
+.payment-methods i {
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+.payment-methods i:hover {
+    opacity: 1;
+}
+
+@media (max-width: 767.98px) {
+    .footer .col-md-6 {
+        margin-bottom: 2rem;
+    }
+    
+    .footer-text {
+        text-align: center !important;
+    }
+}

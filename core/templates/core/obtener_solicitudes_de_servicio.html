@@ -1,0 +1,42 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/home.css'%}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <h1 style="color: blue !important; font-weight: bolder;">
+            Mis Solicitudes de Servicio <br> (Vista de {{ tipousu }})
+        </h1>
+        <table class="table table-hover">
+            <theader>
+                <th>Nro SS</th>
+                <th>Cliente</th>
+                <th>Tipo SS</th>
+                <th>Fecha Visita</th>
+                <th>Hora Visita</th>
+                <th>Técnico</th>
+                <th>Descripción</th>
+                <th>Estado SS</th>
+            </theader>
+            <tbody>
+                {% if lista %}
+                    {% for sol in lista %}
+                        <tr>
+                            <td>{{ sol.nrosol }}</td>
+                            <td>{{ sol.nomcli }}</td>
+                            <td>{{ sol.tiposol }}</td>
+                            <td>{{ sol.fechavisita }}</td>
+                            <td>{{ sol.hora }}</td>
+                            <td>{{ sol.nomtec }}</td>
+                            <td>{{ sol.descser }}</td>
+                            <td>{{ sol.estadosol }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}

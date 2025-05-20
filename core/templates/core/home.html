@@ -1,0 +1,402 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/home.css' %}?v=4.1" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <p class="pre-title">Expertos en climatización comercial</p>
+                <h1>Soluciones Integrales de <span>Climatización</span> para tu Negocio</h1>
+                <p class="subtitle">Optimizamos el confort térmico de tus espacios con tecnología de vanguardia y servicio certificado</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'tienda' %}" class="btn btn-primary">
+                        <i class="fas fa-shopping-cart"></i> Ver Catálogo
+                    </a>
+                    <a href="#contacto" class="btn btn-secondary">
+                        <i class="fas fa-phone-alt"></i> Consulta Gratis
+                    </a>
+                </div>
+                <div class="trust-indicators">
+                    <div class="indicator">
+                        <i class="fas fa-check-circle"></i>
+                        <span>15+ años de experiencia</span>
+                    </div>
+                    <div class="indicator">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Certificación ISO 9001</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{% static 'core/img/home2.jpg' %}" alt="Sistema de climatización profesional" loading="lazy">
+                <div class="experience-badge">
+                    <span>15+ Años</span>
+                    <small>Experiencia</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Marcas Section -->
+<section class="brands-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Aliados estratégicos</p>
+            <h2 class="section-title">Trabajamos con las mejores marcas</h2>
+        </div>
+        <div class="brands-grid">
+            {% for brand in brands %}
+            <div class="brand-item">
+                <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" loading="lazy">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Servicios Section -->
+<section class="services-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Nuestros servicios</p>
+            <h2 class="section-title">Soluciones Completas para Climatización</h2>
+            <p class="section-description">Desde diseño hasta mantenimiento continuo, cubrimos todas tus necesidades de climatización</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h3>Instalación Profesional</h3>
+                <p>Cálculo de carga térmica, diseño de sistemas y montaje por técnicos certificados con garantía de funcionamiento.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Diseño personalizado</li>
+                    <li><i class="fas fa-check"></i> Cálculo de carga térmica</li>
+                    <li><i class="fas fa-check"></i> Certificación final</li>
+                </ul>
+                <a href="#" class="service-link">Saber más <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="service-card highlighted">
+                <div class="service-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h3>Mantenimiento Preventivo</h3>
+                <p>Programas anuales personalizados para maximizar eficiencia energética y extender la vida útil de tus equipos.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Planes anuales</li>
+                    <li><i class="fas fa-check"></i> Optimización energética</li>
+                    <li><i class="fas fa-check"></i> Reportes detallados</li>
+                </ul>
+                <a href="#" class="service-link">Saber más <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Reparaciones Urgentes</h3>
+                <p>Servicio de emergencia 24/7 con respuesta garantizada en menos de 4 horas para minimizar tiempos de inactividad.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> Respuesta 24/7</li>
+                    <li><i class="fas fa-check"></i> Repuestos originales</li>
+                    <li><i class="fas fa-check"></i> Garantía por servicio</li>
+                </ul>
+                <a href="#" class="service-link">Saber más <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Diferenciadores Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Nuestra ventaja competitiva</p>
+            <h2 class="section-title">¿Por qué elegirnos?</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-medal"></i>
+                </div>
+                <h3>Garantía Extendida</h3>
+                <p>Hasta 5 años en compresores y 3 años en partes, la cobertura más completa del mercado.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Técnicos Certificados</h3>
+                <p>Equipo con certificaciones AHRI, NATE y normas ISO 9001 para garantizar calidad en cada servicio.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Respuesta Inmediata</h3>
+                <p>Servicio de emergencia 24/7 los 365 días del año con tiempos de respuesta garantizados.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h3>Ahorro Energético</h3>
+                <p>Sistemas con eficiencia energética clase A+++ que reducen hasta 40% tu consumo eléctrico.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Proyectos Section -->
+<section class="projects-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Nuestro trabajo</p>
+            <h2 class="section-title">Proyectos Destacados</h2>
+            <p class="section-description">Casos de éxito en diversas industrias y aplicaciones</p>
+        </div>
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-image">
+                    <img src="{% static 'core/img/project1.jpg' %}" alt="Oficinas corporativas" loading="lazy">
+                </div>
+                <div class="project-info">
+                    <h3>Oficinas Corporativas</h3>
+                    <p>Sistema VRF para edificio de 20 pisos con control centralizado</p>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>5,000 m²</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-bolt"></i>
+                            <span>30% ahorro</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-image">
+                    <img src="{% static 'core/img/project2.jpg' %}" alt="Centro comercial" loading="lazy">
+                </div>
+                <div class="project-info">
+                    <h3>Centro Comercial</h3>
+                    <p>Solución de climatización para 15,000 m² con recuperación de calor</p>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>15,000 m²</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-bolt"></i>
+                            <span>25% ahorro</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-image">
+                    <img src="{% static 'core/img/project3.jpg' %}" alt="Centro médico" loading="lazy">
+                </div>
+                <div class="project-info">
+                    <h3>Centro Médico</h3>
+                    <p>Sistema de aire acondicionado con filtros HEPA y control de humedad</p>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>8,000 m²</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-bolt"></i>
+                            <span>40% ahorro</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      +
+    </div>
+</section>
+
+<!-- Testimonios Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Testimonios</p>
+            <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+        </div>
+        <div class="testimonials-slider">
+            <div class="testimonial-card">
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"La mejor decisión que tomamos para nuestro edificio corporativo. El equipo técnico demostró un conocimiento excepcional y el sistema instalado ha superado nuestras expectativas en eficiencia energética."</p>
+                <div class="client-info">
+                    <img src="{% static 'core/img/client1.jpg' %}" alt="Alejandro Martínez" class="client-avatar" loading="lazy">
+                    <div>
+                        <h4>Alejandro Martínez</h4>
+                        <p>Director de Operaciones, Inmobiliaria DelSol</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"Rápida respuesta cuando nuestro sistema falló en plena ola de calor. Solucionaron el problema en menos de 2 horas y nos explicaron claramente cómo prevenir futuras fallas. Excelente servicio post-venta."</p>
+                <div class="client-info">
+                    <img src="{% static 'core/img/client2.jpg' %}" alt="Camila Rodríguez" class="client-avatar" loading="lazy">
+                    <div>
+                        <h4>Camila Rodríguez</h4>
+                        <p>Gerente Comercial, Hotel Costa Azul</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>¿Necesitas asesoría técnica especializada?</h2>
+            <p>Nuestros ingenieros están listos para evaluar tus necesidades y ofrecerte la mejor solución</p>
+            <a href="#contacto" class="btn btn-primary btn-large">
+                <i class="fas fa-calendar-alt"></i> Agendar Visita Técnica
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Contacto Section -->
+<section class="contact-section" id="contacto">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-preheading">Contacto</p>
+            <h2 class="section-title">Hablemos de tu proyecto</h2>
+        </div>
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h3>Información de contacto</h3>
+                <p>Complete el formulario y un especialista se comunicará con usted en menos de 1 hora hábil para evaluar sus necesidades.</p>
+                
+                <div class="contact-details">
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Oficina Central</h4>
+                            <p>Av. Apoquindo 4500, Las Condes, Santiago</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Teléfono</h4>
+                            <p>+56 2 2345 6789</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Email</h4>
+                            <p>contacto@climatizacionpro.cl</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h4>Horario de atención</h4>
+                            <p>Lunes a Viernes: 8:30 - 18:30<br>
+                            Emergencias: 24/7</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="social-media">
+                    <h4>Síguenos</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <h3>Solicita una consulta</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" name="nombre" placeholder="Nombre completo" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="email" name="email" placeholder="Correo electrónico" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" name="telefono" placeholder="Teléfono">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <select name="servicio" required>
+                            <option value="" disabled selected>Servicio de interés</option>
+                            <option value="instalacion">Instalación profesional</option>
+                            <option value="mantenimiento">Mantenimiento preventivo</option>
+                            <option value="reparacion">Reparación de emergencia</option>
+                            <option value="diseno">Diseño de sistemas</option>
+                            <option value="optimizacion">Optimización energética</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea name="mensaje" placeholder="Describa brevemente sus necesidades" rows="4" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-paper-plane"></i> Enviar consulta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

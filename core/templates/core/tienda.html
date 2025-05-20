@@ -1,0 +1,86 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/forms.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="hero-title">Aires Acondicionados Buenos Aires</h1>
+        <p class="hero-subtitle">Encuentra los mejores equipos con instalación profesional</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container py-4">
+
+    {% if list %}
+        <div class="row">
+            {% for producto in list %}
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+                    <div class="card h-100 shadow-sm tienda-card">
+                        <a href="{% url 'ficha' producto.idprod %}" class="text-decoration-none">
+                            <img src="/media/{{ producto.imagen }}" class="card-img-top tienda-card-img" alt="{{ producto.nomprod }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ producto.nomprod }}</h5>
+                                <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
+                                <div class="mt-auto">
+                                    <span class="badge bg-primary">Disponible</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center my-5 py-5">
+            <i class="fas fa-box-open fa-4x text-muted mb-4"></i>
+            <h3 class="text-muted">No hay productos disponibles</h3>
+            <p class="text-muted">Estamos actualizando nuestro catálogo. Vuelve pronto.</p>
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-5">
+        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg px-4">
+            <i class="fas fa-arrow-left me-2"></i>Volver al inicio
+        </a>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="bg-light py-5 mt-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="p-4">
+                    <i class="fas fa-truck fa-3x text-primary mb-3"></i>
+                    <h4>Envío Rápido</h4>
+                    <p class="text-muted">Recibe tu producto en 24-48 horas en Buenos Aires</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="p-4">
+                    <i class="fas fa-cogs fa-3x text-primary mb-3"></i>
+                    <h4>Instalación Profesional</h4>
+                    <p class="text-muted">Servicio de instalación por técnicos certificados</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4">
+                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                    <h4>Garantía Extendida</h4>
+                    <p class="text-muted">Todos nuestros productos incluyen garantía de 2 años</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

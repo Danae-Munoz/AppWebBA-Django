@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/iniciar_sesion.css' %}?v=2.0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="login-page-container">
+    <div class="login-container">
+        <div class="login-header">
+            <h1 class="login-title">
+                <i class=""></i> Iniciar Sesión
+            </h1>
+            <p class="login-subtitle">Ingresa tus credenciales para acceder</p>
+        </div>
+        
+        <div class="login-form-container">
+            <form method="POST" action="" id="login-form" class="login-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    {% for field in form %}
+                        <div class="input-group">
+                            <label for="{{ field.id_for_label }}">
+                                <i class="fas fa-{{ field.name|default:'user' }} icon"></i>
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-helptext">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="login-button">
+                        <i class="fas fa-sign-in-alt"></i> Ingresar
+                    </button>
+                </div>
+                
+                {% if mesg %}
+                    <div class="alert-message error">
+                        <i class="fas fa-exclamation-triangle"></i> {{ mesg }}
+                    </div>
+                {% endif %}
+            </form>
+            
+            <div class="login-footer">
+                <p>¿No tienes una cuenta? <a href="{% url 'registrar_usuario' %}" class="register-link">Regístrate aquí</a></p>
+                <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
