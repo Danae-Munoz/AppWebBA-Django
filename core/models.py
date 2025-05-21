@@ -137,5 +137,3 @@ class AnwoStockProducto(models.Model):
         
     def __str__(self):
         return f'{self.nroserieanwo} - {self.nomprodanwo}'
-    
-
