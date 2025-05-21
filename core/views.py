@@ -3,11 +3,11 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Producto, PerfilUsuario
-from .forms import ProductoForm, IniciarSesionForm, SolicitudServicioForm
+from .forms import ProductoForm, IniciarSesionForm
 from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 #from .error.transbank_error import TransbankError
 from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
-from django.db import connection, transaction
+from django.db import connection
 import random
 import requests
 
@@ -250,85 +250,3 @@ def obtener_solicitudes_de_servicio(request):
     tipousu = PerfilUsuario.objects.get(user=request.user).tipousu
     data = {'tipousu': tipousu }
     return render(request, "core/obtener_solicitudes_de_servicio.html", data)
-
-def ingresar_solicitud_servicio(request):
-    mensaje = None
-    exito = None
-
-    if request.method == 'POST':
-        form = SolicitudServicioForm(request.POST)
-        if form.is_valid():
-            pago_exitoso = True  # Simulación de Webpay
-
-            try:
-                perfil = PerfilUsuario.objects.get(user=request.user)
-                rut = perfil.rut
-
-                if pago_exitoso:
-                    with transaction.atomic():
-                        with connection.cursor() as cursor:
-                            # Primero se crea la factura
-                            cursor.callproc('SP_CREAR_FACTURA', [
-                                rut,
-                                form.cleaned_data['precio_visita'],
-                                form.cleaned_data['descripcion']
-                            ])
-
-                            # Luego se crea la solicitud (requiere que exista la factura)
-                            cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
-                                rut,
-                                form.cleaned_data['tipo_solicitud'],
-                                form.cleaned_data['descripcion'],
-                                form.cleaned_data['fecha_visita'],
-                                form.cleaned_data['hora_visita'],
-                                form.cleaned_data['precio_visita']
-                            ])
-
-                    return redirect('facturas', id=rut)
-                else:
-                    mensaje = "El pago ha fallado. Por favor, intente nuevamente."
-                    exito = False
-
-            except Exception as e:
-                mensaje = f"Ocurrió un error: {str(e)}"
-                exito = False
-    else:
-        form = SolicitudServicioForm()
-
-    return render(request, 'ingresar_solicitud_servicio.html', {
-        'form': form,
-        'mensaje': mensaje,
-        'exito': exito
-    })
-
-def facturas(request, id):
-    facturas = []
-    guias = {}
-
-    # Ejecutar SP_OBTENER_FACTURAS
-    with connection.cursor() as cursor:
-        cursor.callproc('SP_OBTENER_FACTURAS', [id])
-        columns = [col[0] for col in cursor.description]
-        facturas = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-    # Ejecutar SP_OBTENER_GUIAS_DE_DESPACHO
-    with connection.cursor() as cursor:
-        cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
-        columns = [col[0] for col in cursor.description]
-        guias_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
-
-    # Mapear guías por nrofac
-    for g in guias_list:
-        guias[g['nrofac']] = g
-
-    # Agregar info de guía a cada factura
-    for f in facturas:
-        guia = guias.get(f['nrofac'])
-        if guia:
-            f['nrogd'] = guia['nrogd']
-            f['estadogd'] = guia['estadogd']
-        else:
-            f['nrogd'] = "No aplica"
-            f['estadogd'] = "No aplica"
-
-    return render(request, 'facturas.html', {'facturas': facturas, 'es_admin': id == "admin"})

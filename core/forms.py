@@ -31,3 +31,5 @@ class PerfilUsuarioForm(Form):
     tipousu = forms.CharField(max_length=50, required=True, label="Tipo de usuario")
     dirusu = forms.CharField(max_length=300, required=False, label="Dirección")
 
+    class Meta:
+        fields = '__all__'
