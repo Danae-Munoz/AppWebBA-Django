@@ -339,42 +339,65 @@ def retorno_pago_servicio(request):
         integration_type='TEST'
     ))
 
-    response = tx.commit(token)
+    response = tx.commit(token=token)
 
     if response['status'] == 'AUTHORIZED':
         data = request.session.pop('solicitud_data', None)
 
         if not data:
             return render(request, "core/error_pago.html", {
-                "mensaje": "No se encontraron datos de la solicitud."
+                "mensaje": "No se encontró la solicitud en sesión."
             })
 
-        with connection.cursor() as cursor:
-            # Crear factura
-            cursor.execute("EXEC SP_CREAR_FACTURA ?, ?, ?, ?, ?", [
-                data['rutcli'], None, data['fecha'], f"Servicio: {data['tipo']}", data['precio']
-            ])
-            nrofac = cursor.fetchone()[0]
+        try:
+            with connection.cursor() as cursor:
+                # Asegurar que el monto sea entero
+                monto = int(data['precio'])
 
-            # Obtener técnico aleatorio
-            cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
-            tecnicos = cursor.fetchall()
-            ruttec = tecnicos[random.randint(0, len(tecnicos) - 1)][0]
+                # Crear la factura
+                cursor.execute("""
+                    EXEC SP_CREAR_FACTURA 
+                    @rutcli=?, 
+                    @idprod=NULL, 
+                    @fechafac=?, 
+                    @descfac=?, 
+                    @monto=?
+                """, [
+                    data['rutcli'], 
+                    data['fecha'], 
+                    f"Servicio: {data['tipo']}", 
+                    data['precio']
+                ])
 
-            # Ejecutar procedimiento real aquí
-            cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?, ?", [
-                nrofac, data['tipo'], data['descripcion'], data['fecha'], data['hora'], ruttec
-            ])
+                nrofac = cursor.fetchone()[0]  # obtener el nrofac generado
 
-        return render(request, "core/solicitud_exitosa.html")
+                # Obtener técnico aleatorio
+                cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
+                tecnicos = cursor.fetchall()
 
-    # Si el pago falla, no se guarda nada
-    request.session.pop('solicitud_data', None)
-    return render(request, "core/error_pago.html", {
-        "mensaje": "Transacción rechazada por Webpay o no autorizada."
-    })
+                if not tecnicos:
+                    return render(request, "core/error_pago.html", {
+                        "mensaje": "No hay técnicos disponibles."
+                    })
 
+                ruttec = random.choice(tecnicos)[0]
 
+                # Crear solicitud
+                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?, ?", [
+                    nrofac, data['tipo'], data['descripcion'], data['fecha'], data['hora'], ruttec
+                ])
+
+            return render(request, "core/solicitud_exitosa.html")
+
+        except Exception as e:
+            return render(request, "core/error_pago.html", {
+                "mensaje": f"Ocurrió un error al procesar la solicitud: {str(e)}"
+            })
+
+    else:
+        return render(request, "core/error_pago.html", {
+            "mensaje": "Transacción rechazada por Webpay o no autorizada."
+        })
 
 @login_required
 def ver_facturas(request, rut):
