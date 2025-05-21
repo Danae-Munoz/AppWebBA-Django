@@ -153,6 +153,89 @@ BEGIN
 END
 """
 
+SP_CREAR_SOLICITUD_SERVICIO = """
+CREATE PROCEDURE [dbo].[SP_CREAR_SOLICITUD_SERVICIO]
+    @rutcli VARCHAR(20),
+    @tiposol VARCHAR(50),
+    @descsol VARCHAR(200),
+    @fechavisita DATE,
+    @horavisita TIME,
+    @precio INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nrofac INT;
+    DECLARE @nrosol INT;
+
+    -- Obtener la última factura del cliente
+    SELECT TOP 1 @nrofac = nrofac
+    FROM Factura
+    WHERE rutcli = @rutcli
+    ORDER BY nrofac DESC;
+
+    -- Calcular siguiente número de solicitud
+    SELECT @nrosol = ISNULL(MAX(nrosol), 0) + 1 FROM SolicitudServicio;
+
+    -- Insertar nueva solicitud
+    INSERT INTO SolicitudServicio (
+        nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol
+    )
+    VALUES (
+        @nrosol, @nrofac, @tiposol, @fechavisita, NULL, @descsol, 'Aceptada'
+    );
+END
+"""
+SP_CREAR_FACTURA = """
+CREATE PROCEDURE [dbo].[SP_CREAR_FACTURA]
+    @rutcli VARCHAR(20),
+    @precio INT,
+    @descfac VARCHAR(300)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nrofac INT;
+    DECLARE @idprod INT;
+
+    -- Calcular el nuevo número de factura
+    SELECT @nrofac = ISNULL(MAX(nrofac), 0) + 1 FROM Factura;
+
+    -- Usamos un ID de producto genérico si la compra no está asociada a un equipo específico
+    SET @idprod = 5;  -- GPORT-14 como predeterminado
+
+    INSERT INTO Factura (
+        nrofac, rutcli, idprod, fechafac, descfac, monto
+    )
+    VALUES (
+        @nrofac, @rutcli, @idprod, GETDATE(), @descfac, @precio
+    );
+END
+"""
+SP_OBTENER_FACTURAS = """
+CREATE PROCEDURE [dbo].[SP_OBTENER_FACTURAS]
+    @rut_param VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @rut_param = 'admin'
+        SELECT * FROM Factura
+    ELSE
+        SELECT * FROM Factura WHERE rutcli = @rut_param
+END
+"""
+SP_OBTENER_GUIAS_DE_DESPACHO = """
+CREATE PROCEDURE [dbo].[SP_OBTENER_GUIAS_DE_DESPACHO]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT * FROM GuiaDespacho
+END
+"""
+
+
 def exec_sql(query):
     with connection.cursor() as cursor:
         cursor.execute(query)
@@ -264,5 +347,28 @@ def run():
         exec_sql(SP_RESERVAR_EQUIPO_ANWO)
     except:
         pass
+
+    try:
+        exec_sql(SP_CREAR_SOLICITUD_SERVICIO)
+    except:
+        pass
+
+    try:
+        exec_sql(SP_CREAR_FACTURA)
+    except:
+        pass
+
+    try:
+        exec_sql(SP_OBTENER_FACTURAS)
+    except:
+        pass
+
+    try:
+        exec_sql(SP_OBTENER_GUIAS_DE_DESPACHO)
+    except:
+        pass
+
+
+
 
     
