@@ -350,23 +350,31 @@ def run():
 
     try:
         exec_sql(SP_CREAR_SOLICITUD_SERVICIO)
+        print('paso SP_CREAR_SOLICITUD_SERVICIO')
     except:
         pass
+        print('NO PASO SP_CREAR_SOLICITUD_SERVICIO')
 
     try:
         exec_sql(SP_CREAR_FACTURA)
+        print('paso SP_CREAR_FACTURA')
     except:
         pass
+        print('NO PASO SP_CREAR_FACTURA')
 
     try:
         exec_sql(SP_OBTENER_FACTURAS)
+        print('paso SP_OBTENER_FACTURAS')
     except:
         pass
+        print('NO PASO SP_OBTENER_FACTURAS')
 
     try:
         exec_sql(SP_OBTENER_GUIAS_DE_DESPACHO)
+        print('paso SP_OBTENER_GUIAS_DE_DESPACHO')
     except:
         pass
+        print('NO PASO SP_OBTENER_GUIAS_DE_DESPACHO')
 
 
 
