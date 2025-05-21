@@ -1,8 +1,9 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
-from .models import Producto, PerfilUsuario
+from .models import Producto, PerfilUsuario, SolicitudServicio
 from .forms import ProductoForm, IniciarSesionForm
 from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 #from .error.transbank_error import TransbankError
@@ -10,6 +11,8 @@ from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
 from django.db import connection
 import random
 import requests
+
+
 
 def home(request):
     return render(request, "core/home.html")
@@ -250,3 +253,124 @@ def obtener_solicitudes_de_servicio(request):
     tipousu = PerfilUsuario.objects.get(user=request.user).tipousu
     data = {'tipousu': tipousu }
     return render(request, "core/obtener_solicitudes_de_servicio.html", data)
+
+# ingresar_solicitud_servicio
+@login_required
+def ingresar_solicitud_servicio(request):
+    if request.method == "POST":
+        tipo = request.POST.get("tipo_solicitud")
+        descripcion = request.POST.get("descripcion")
+        fecha = request.POST.get("fecha_visita")
+        hora = request.POST.get("hora_visita")
+        precio = request.POST.get("precio")
+
+        request.session["solicitud_temp"] = {
+            "tipo": tipo,
+            "descripcion": descripcion,
+            "fecha": fecha,
+            "hora": hora,
+            "precio": precio
+        }
+
+        return redirect("iniciar_pago_solicitud")  # Esta vista se detalla abajo
+
+    return render(request, "core/ingresar_solicitud_servicio.html")
+
+@login_required
+def iniciar_pago_solicitud(request):
+    solicitud = request.session.get("solicitud_temp")
+    if not solicitud:
+        return redirect("ingresar_solicitud_servicio")
+
+    buy_order = str(random.randint(100000, 999999))
+    session_id = request.user.username
+    amount = int(solicitud["precio"])
+    return_url = request.build_absolute_uri("/pago_exitoso_solicitud/")
+
+    commercecode = "597055555532"
+    apikey = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C"
+
+    tx = Transaction(options=WebpayOptions(
+        commerce_code=commercecode,
+        api_key=apikey,
+        integration_type="TEST"
+    ))
+
+    response = tx.create(buy_order, session_id, amount, return_url)
+
+    request.session["buy_order"] = buy_order
+
+    return redirect(response["url"] + "?token_ws=" + response["token"])
+
+
+@csrf_exempt
+@login_required
+def pago_exitoso_solicitud(request):
+    token = request.GET.get("token_ws")
+    commercecode = "597055555532"
+    apikey = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C"
+
+    tx = Transaction(options=WebpayOptions(
+        commerce_code=commercecode,
+        api_key=apikey,
+        integration_type="TEST"
+    ))
+
+    response = tx.commit(token=token)
+
+    if response["status"] == "AUTHORIZED":
+        solicitud = request.session.get("solicitud_temp")
+        user = request.user
+
+        with connection.cursor() as cursor:
+            cursor.callproc("SP_CREAR_SOLICITUD_SERVICIO", [
+                user.username,
+                solicitud["tipo"],
+                solicitud["descripcion"],
+                solicitud["fecha"],
+                solicitud["precio"]
+            ])
+            cursor.callproc("SP_CREAR_FACTURA", [
+                user.username,
+                solicitud["descripcion"],
+                solicitud["precio"]
+            ])
+
+
+        return render(request, "core/solicitud_generada.html")
+
+    return render(request, "core/error_pago.html", {"mensaje": "Pago no autorizado."})
+
+# facturas
+@login_required
+def ver_facturas(request):
+    user = request.user
+    perfil = PerfilUsuario.objects.get(user=user)
+    rut = perfil.rut
+    tipo = perfil.tipousu
+
+    parametro = rut if tipo == "Cliente" else "admin"
+    facturas = []
+
+    with connection.cursor() as cursor:
+        cursor.callproc("SP_OBTENER_FACTURAS", [parametro])
+        columns = [col[0] for col in cursor.description]
+        for row in cursor.fetchall():
+            facturas.append(dict(zip(columns, row)))
+
+    if tipo != "Cliente":
+        # Solo si es admin, podría revisar guías de despacho por separado
+        with connection.cursor() as cursor:
+            cursor.callproc("SP_OBTENER_GUIAS_DE_DESPACHO")
+            guias = {row[0]: row[1] for row in cursor.fetchall()}  # nro_guia -> estado
+
+        # Enriquecer facturas con estado de guía
+        for factura in facturas:
+            nro_guia = factura.get("nro_guia")
+            if nro_guia in guias:
+                factura["estado_guia"] = guias[nro_guia]
+
+    return render(request, "core/facturas.html", {
+        "facturas": facturas,
+        "tipousu": tipo
+    })
