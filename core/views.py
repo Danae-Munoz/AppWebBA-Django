@@ -7,7 +7,7 @@ from .forms import ProductoForm, IniciarSesionForm, SolicitudServicioForm
 from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 #from .error.transbank_error import TransbankError
 from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
-from django.db import connection
+from django.db import connection, transaction
 import random
 import requests
 
@@ -258,33 +258,39 @@ def ingresar_solicitud_servicio(request):
     if request.method == 'POST':
         form = SolicitudServicioForm(request.POST)
         if form.is_valid():
-            # Simulación de Webpay (aquí podrías insertar lógica real)
-            pago_exitoso = True  # Puedes reemplazarlo por una integración real con Webpay
+            pago_exitoso = True  # Simulación de Webpay
 
-            if pago_exitoso:
-                try:
-                    with connection.cursor() as cursor:
-                        cursor.callproc('SP_CREAR_FACTURA', [
-                        request.user.username,
-                        form.cleaned_data['precio_visita'],
-                        form.cleaned_data['descripcion'],
-                    ])
-                    cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
-                        request.user.username,
-                        form.cleaned_data['tipo_solicitud'],
-                        form.cleaned_data['descripcion'],
-                        form.cleaned_data['fecha_visita'],
-                        form.cleaned_data['hora_visita'],
-                        form.cleaned_data['precio_visita'],
-                    ])      
+            try:
+                perfil = PerfilUsuario.objects.get(user=request.user)
+                rut = perfil.rut
 
-                    mensaje = "¡Su Solicitud de Servicio ha sido generada con éxito!"
-                    exito = True
-                except Exception as e:
-                    mensaje = "Ocurrió un error al registrar la solicitud. Intente nuevamente."
+                if pago_exitoso:
+                    with transaction.atomic():
+                        with connection.cursor() as cursor:
+                            # Primero se crea la factura
+                            cursor.callproc('SP_CREAR_FACTURA', [
+                                rut,
+                                form.cleaned_data['precio_visita'],
+                                form.cleaned_data['descripcion']
+                            ])
+
+                            # Luego se crea la solicitud (requiere que exista la factura)
+                            cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
+                                rut,
+                                form.cleaned_data['tipo_solicitud'],
+                                form.cleaned_data['descripcion'],
+                                form.cleaned_data['fecha_visita'],
+                                form.cleaned_data['hora_visita'],
+                                form.cleaned_data['precio_visita']
+                            ])
+
+                    return redirect('facturas', id=rut)
+                else:
+                    mensaje = "El pago ha fallado. Por favor, intente nuevamente."
                     exito = False
-            else:
-                mensaje = "El pago ha fallado. Por favor, intente nuevamente."
+
+            except Exception as e:
+                mensaje = f"Ocurrió un error: {str(e)}"
                 exito = False
     else:
         form = SolicitudServicioForm()
