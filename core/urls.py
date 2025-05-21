@@ -19,7 +19,7 @@ urlpatterns = [
     path('registrar_usuario/', registrar_usuario, name="registrar_usuario"),
     path('tienda', tienda, name="tienda"),
     path('cerrar_sesion/', cerrar_sesion, name='cerrar_sesion'),
-    path('solicitud-servicio/', ingresar_solicitud_servicio, name='ingresar_solicitud_servicio'),
+    path('ingresar_solicitud_servicio/', ingresar_solicitud_servicio, name='ingresar_solicitud_servicio'),
     path('retorno_pago/', retorno_pago, name='retorno_pago'),
     path('facturas/<str:rut>/', ver_facturas, name='ver_facturas'),
 ]
