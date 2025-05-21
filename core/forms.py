@@ -31,16 +31,3 @@ class PerfilUsuarioForm(Form):
     tipousu = forms.CharField(max_length=50, required=True, label="Tipo de usuario")
     dirusu = forms.CharField(max_length=300, required=False, label="Dirección")
 
-class SolicitudServicioForm(forms.Form):
-    TIPOS = [
-        ('Mantención', 'Mantención'),
-        ('Reparación', 'Reparación'),
-    ]
-
-    precio_visita = forms.IntegerField(widget=forms.TextInput(attrs={'readonly': 'readonly'}), initial=25000)
-    tipo_solicitud = forms.ChoiceField(choices=TIPOS)
-    descripcion = forms.CharField(widget=forms.Textarea)
-    fecha_visita = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    hora_visita = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}))
-    class Meta:
-        fields = '__all__'

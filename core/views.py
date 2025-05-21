@@ -264,19 +264,20 @@ def ingresar_solicitud_servicio(request):
             if pago_exitoso:
                 try:
                     with connection.cursor() as cursor:
-                        cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
-                            request.user.username,  # o request.user.perfil.rut
-                            form.cleaned_data['tipo_solicitud'],
-                            form.cleaned_data['descripcion'],
-                            form.cleaned_data['fecha_visita'],
-                            form.cleaned_data['hora_visita'],
-                            form.cleaned_data['precio_visita'],
-                        ])
                         cursor.callproc('SP_CREAR_FACTURA', [
-                            request.user.username,
-                            form.cleaned_data['precio_visita'],
-                            form.cleaned_data['descripcion'],
-                        ])
+                        request.user.username,
+                        form.cleaned_data['precio_visita'],
+                        form.cleaned_data['descripcion'],
+                    ])
+                    cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
+                        request.user.username,
+                        form.cleaned_data['tipo_solicitud'],
+                        form.cleaned_data['descripcion'],
+                        form.cleaned_data['fecha_visita'],
+                        form.cleaned_data['hora_visita'],
+                        form.cleaned_data['precio_visita'],
+                    ])      
+
                     mensaje = "¡Su Solicitud de Servicio ha sido generada con éxito!"
                     exito = True
                 except Exception as e:
