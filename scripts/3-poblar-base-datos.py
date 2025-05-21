@@ -155,50 +155,55 @@ END
 
 # Nuevo
 SP_CREAR_SOLICITUD_SERVICIO="""
-CREATE PROCEDURE SP_CREAR_SOLICITUD_SERVICIO
-    @rutcli VARCHAR(20),
+CREATE PROCEDURE [dbo].[SP_CREAR_SOLICITUD_SERVICIO]
+    @nrofac INT,
     @tiposol VARCHAR(50),
-    @descsol TEXT,
+    @descsol VARCHAR(200),
     @fechavisita DATE,
-    @hora TIME
+    @hora TIME,
+    @ruttec VARCHAR(20)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @nrofac INT;
+    -- Asignar número de solicitud automático
+    DECLARE @nrosol INT;
+    SELECT @nrosol = ISNULL(MAX(nrosol), 0) + 1 FROM SolicitudServicio;
 
-    -- Buscar la última factura del cliente para vincular
-    SELECT TOP 1 @nrofac = nrofac
-    FROM Factura
-    WHERE rutcli = @rutcli
-    ORDER BY nrofac DESC;
-
-    -- Insertar solicitud
-    INSERT INTO SolicitudServicio (tiposol, descsol, fechavisita, hora, rutcli, nrofac, estadosol)
-    VALUES (@tiposol, @descsol, @fechavisita, @hora, @rutcli, @nrofac, 'Aceptada');
+    INSERT INTO SolicitudServicio (
+        nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol
+    ) VALUES (
+        @nrosol, @nrofac, @tiposol, @fechavisita, @ruttec, @descsol, 'Aceptada'
+    );
 END
-GO
 """
 
 SP_CREAR_FACTURA="""
-CREATE PROCEDURE SP_CREAR_FACTURA
+CREATE PROCEDURE [dbo].[SP_CREAR_FACTURA]
     @rutcli VARCHAR(20),
-    @descfac VARCHAR(300),
+    @idprod INT = NULL,
     @fechafac DATE,
+    @descfac VARCHAR(300),
     @monto INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Insertar factura sin producto asociado (servicio)
-    INSERT INTO Factura (rutcli, idprod, fechafac, descfac, monto)
-    VALUES (@rutcli, NULL, @fechafac, @descfac, @monto);
+    DECLARE @nrofac INT;
+    SELECT @nrofac = ISNULL(MAX(nrofac), 0) + 1 FROM Factura;
+
+    INSERT INTO Factura (
+        nrofac, rutcli, idprod, fechafac, descfac, monto
+    ) VALUES (
+        @nrofac, @rutcli, @idprod, @fechafac, @descfac, @monto
+    );
+
+    SELECT @nrofac AS nrofac; -- Devuelve el nrofac generado
 END
-GO
 """
 
 SP_OBTENER_FACTURAS="""
-CREATE PROCEDURE SP_OBTENER_FACTURAS
+CREATE PROCEDURE [dbo].[SP_OBTENER_FACTURAS]
     @rut VARCHAR(20)
 AS
 BEGIN
@@ -206,44 +211,44 @@ BEGIN
 
     IF @rut = 'admin'
     BEGIN
-        SELECT f.nrofac, u.first_name + ' ' + u.last_name AS cliente, f.fechafac, f.descfac, f.monto,
+        SELECT f.nrofac, u.first_name + ' ' + u.last_name AS cliente,
+               f.fechafac, f.descfac, f.monto,
                ISNULL(g.nrogd, 'No aplica') AS nro_gd,
                ISNULL(g.estadogd, 'No aplica') AS estado_gd,
                ISNULL(s.nrosol, 'No aplica') AS nro_ss,
                ISNULL(s.estadosol, 'No aplica') AS estado_ss
         FROM Factura f
-        LEFT JOIN SolicitudServicio s ON f.nrofac = s.nrofac
-        LEFT JOIN GuiaDespacho g ON f.nrofac = g.nrofac
-        INNER JOIN PerfilUsuario p ON f.rutcli = p.rut
+        LEFT JOIN SolicitudServicio s ON s.nrofac = f.nrofac
+        LEFT JOIN GuiaDespacho g ON g.nrofac = f.nrofac
+        INNER JOIN PerfilUsuario p ON p.rut = f.rutcli
         INNER JOIN auth_user u ON u.id = p.user_id
     END
     ELSE
     BEGIN
-        SELECT f.nrofac, u.first_name + ' ' + u.last_name AS cliente, f.fechafac, f.descfac, f.monto,
+        SELECT f.nrofac, u.first_name + ' ' + u.last_name AS cliente,
+               f.fechafac, f.descfac, f.monto,
                ISNULL(g.nrogd, 'No aplica') AS nro_gd,
                ISNULL(g.estadogd, 'No aplica') AS estado_gd,
                ISNULL(s.nrosol, 'No aplica') AS nro_ss,
                ISNULL(s.estadosol, 'No aplica') AS estado_ss
         FROM Factura f
-        LEFT JOIN SolicitudServicio s ON f.nrofac = s.nrofac
-        LEFT JOIN GuiaDespacho g ON f.nrofac = g.nrofac
-        INNER JOIN PerfilUsuario p ON f.rutcli = p.rut
+        LEFT JOIN SolicitudServicio s ON s.nrofac = f.nrofac
+        LEFT JOIN GuiaDespacho g ON g.nrofac = f.nrofac
+        INNER JOIN PerfilUsuario p ON p.rut = f.rutcli
         INNER JOIN auth_user u ON u.id = p.user_id
         WHERE f.rutcli = @rut
     END
 END
-GO
 """
 
 SP_OBTENER_GUIAS_DE_DESPACHO="""
-CREATE PROCEDURE SP_OBTENER_GUIAS_DE_DESPACHO
+CREATE PROCEDURE [dbo].[SP_OBTENER_GUIAS_DE_DESPACHO ]
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT * FROM GuiaDespacho
 END
-GO
 """
 
 
@@ -360,6 +365,7 @@ def run():
         pass
 
     # Nuevo
+
     try:
         exec_sql(SP_CREAR_SOLICITUD_SERVICIO)
         print('SI PASO')
