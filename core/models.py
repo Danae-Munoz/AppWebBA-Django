@@ -139,17 +139,3 @@ class AnwoStockProducto(models.Model):
         return f'{self.nroserieanwo} - {self.nomprodanwo}'
     
 
-class SolicitudServicio(models.Model):
-    nrosol = models.AutoField(primary_key=True, db_column='nrosol')
-    tiposol = models.CharField(max_length=20, db_column='tiposol')
-    fechavisita = models.DateField(db_column='fechavisita')
-    descsol = models.TextField(db_column='descsol')
-    estadosol = models.CharField(max_length=20, db_column='estadosol')
-    nrofac = models.IntegerField(null=True, blank=True, db_column='nrofac')
-    ruttec = models.CharField(max_length=20, null=True, blank=True, db_column='ruttec')
-
-    class Meta:
-        db_table = 'SolicitudServicio'
-
-
-
