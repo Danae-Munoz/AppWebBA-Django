@@ -179,7 +179,7 @@ END
 """
 
 SP_CREAR_FACTURA="""
-CREATE PROCEDURE [dbo].[SP_CREAR_FACTURA]
+ALTER PROCEDURE [dbo].[SP_CREAR_FACTURA]
     @rutcli VARCHAR(20),
     @idprod INT = NULL,
     @fechafac DATE,
@@ -192,13 +192,41 @@ BEGIN
     DECLARE @nrofac INT;
     SELECT @nrofac = ISNULL(MAX(nrofac), 0) + 1 FROM Factura;
 
+    -- Si no se envía idprod, se toma uno aleatorio desde los productos disponibles entre 1 y 8
+    IF @idprod IS NULL
+    BEGIN
+        DECLARE @productos TABLE(id INT);
+        INSERT INTO @productos(id)
+        SELECT idprod FROM Producto WHERE idprod BETWEEN 1 AND 8;
+
+        DECLARE @count INT = (SELECT COUNT(*) FROM @productos);
+
+        IF @count > 0
+        BEGIN
+            DECLARE @randIndex INT = FLOOR(RAND() * @count);
+
+            SELECT TOP 1 @idprod = id
+            FROM (
+                SELECT id, ROW_NUMBER() OVER (ORDER BY id) AS rn
+                FROM @productos
+            ) AS t
+            WHERE t.rn = @randIndex + 1;
+        END
+        ELSE
+        BEGIN
+            -- Fallback si no hay productos disponibles
+            SET @idprod = 1;
+        END
+    END
+
+    -- Insertar la factura
     INSERT INTO Factura (
         nrofac, rutcli, idprod, fechafac, descfac, monto
     ) VALUES (
         @nrofac, @rutcli, @idprod, @fechafac, @descfac, @monto
     );
 
-    SELECT @nrofac AS nrofac; -- Devuelve el nrofac generado
+    SELECT @nrofac AS nrofac;
 END
 """
 

@@ -351,27 +351,24 @@ def retorno_pago_servicio(request):
 
         try:
             with connection.cursor() as cursor:
-                # Asegurar que el monto sea entero
                 monto = int(data['precio'])
 
-                # Crear la factura
+                # CORRECTO: usar parámetros seguros
                 cursor.execute("""
-                    EXEC SP_CREAR_FACTURA 
-                    @rutcli=?, 
-                    @idprod=NULL, 
-                    @fechafac=?, 
-                    @descfac=?, 
-                    @monto=?
+                    EXEC SP_CREAR_FACTURA @rutcli=%s, @idprod=%s, @fechafac=%s, @descfac=%s, @monto=%s
                 """, [
-                    data['rutcli'], 
-                    data['fecha'], 
-                    f"Servicio: {data['tipo']}", 
-                    data['precio']
+                    data['rutcli'],
+                    None,
+                    data['fecha'],
+                    f"Servicio: {data['tipo']}",
+                    monto
                 ])
 
-                nrofac = cursor.fetchone()[0]  # obtener el nrofac generado
 
-                # Obtener técnico aleatorio
+
+                nrofac = cursor.fetchone()[0]  # obtener número de factura generado
+
+                # Obtener técnico aleatorio disponible
                 cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
                 tecnicos = cursor.fetchall()
 
@@ -382,9 +379,14 @@ def retorno_pago_servicio(request):
 
                 ruttec = random.choice(tecnicos)[0]
 
-                # Crear solicitud
+                # Crear la solicitud de servicio
                 cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?, ?", [
-                    nrofac, data['tipo'], data['descripcion'], data['fecha'], data['hora'], ruttec
+                    nrofac,
+                    data['tipo'],
+                    data['descripcion'],
+                    data['fecha'],
+                    data['hora'],
+                    ruttec
                 ])
 
             return render(request, "core/solicitud_exitosa.html")
@@ -398,6 +400,7 @@ def retorno_pago_servicio(request):
         return render(request, "core/error_pago.html", {
             "mensaje": "Transacción rechazada por Webpay o no autorizada."
         })
+
 
 @login_required
 def ver_facturas(request, rut):
