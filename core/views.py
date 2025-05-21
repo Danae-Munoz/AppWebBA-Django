@@ -1,4 +1,5 @@
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -250,3 +251,74 @@ def obtener_solicitudes_de_servicio(request):
     tipousu = PerfilUsuario.objects.get(user=request.user).tipousu
     data = {'tipousu': tipousu }
     return render(request, "core/obtener_solicitudes_de_servicio.html", data)
+
+@login_required
+def ingresar_solicitud_servicio(request):
+    if request.method == 'POST' and request.POST.get("accion") == "pagar":
+        data = {
+            'rutcli': request.user.perfilusuario.rut,
+            'tipo': request.POST['tipo'],
+            'descripcion': request.POST['descripcion'],
+            'fecha': request.POST['fecha'],
+            'hora': request.POST['hora'],
+            'precio': 25000
+        }
+
+        # Webpay: reemplaza con tus credenciales reales
+        tx = Transaction(WebpayOptions(
+            commerce_code='597055555532',
+            api_key='X',
+            integration_type='TEST'
+        ))
+
+        buy_order = str(random.randint(100000, 999999))
+        session_id = str(request.user.id)
+        return_url = request.build_absolute_uri('/retorno_pago/')
+        response = tx.create(buy_order, session_id, data['precio'], return_url)
+
+        request.session['solicitud_data'] = data
+        return redirect(response['url'] + "?token_ws=" + response['token'])
+
+    return render(request, "core/ingresar_solicitud_servicio.html")
+
+@login_required
+def retorno_pago(request):
+    token = request.GET.get("token_ws")
+
+    tx = Transaction(WebpayOptions(
+        commerce_code='597055555532',
+        api_key='X',
+        integration_type='TEST'
+    ))
+
+    result = tx.commit(token)
+
+    if result['status'] == 'AUTHORIZED':
+        data = request.session.pop('solicitud_data')
+
+        with connection.cursor() as cursor:
+            cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
+                data['rutcli'], data['tipo'], data['descripcion'], data['fecha'], data['hora']
+            ])
+            cursor.callproc('SP_CREAR_FACTURA', [
+                data['rutcli'], f"Servicio: {data['tipo']}", data['fecha'], data['precio']
+            ])
+
+        return render(request, "core/solicitud_exitosa.html")
+
+    return redirect("home")
+
+@login_required
+def ver_facturas(request, rut):
+    with connection.cursor() as cursor:
+        cursor.callproc("SP_OBTENER_FACTURAS", [rut])
+        facturas = cursor.fetchall()
+
+        cursor.callproc("SP_OBTENER_GUIAS_DE_DESPACHO")
+        guias = cursor.fetchall()
+
+    return render(request, "core/facturas.html", {
+        "facturas": facturas,
+        "guias": guias,
+        "es_admin": rut == "admin"
+    })

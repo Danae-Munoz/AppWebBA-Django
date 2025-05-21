@@ -1,0 +1,6 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>¡Su Solicitud de Servicio ha sido generada con éxito!</h2>
+<p>Gracias por confiar en nosotros. Puede revisar su factura en el menú <strong>Mis compras</strong>.</p>
+<a href="{% url 'ver_facturas' request.user.perfilusuario.rut %}">Ir a Mis Facturas</a>
+{% endblock %}
