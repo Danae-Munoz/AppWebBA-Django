@@ -267,9 +267,10 @@ def ingresar_solicitud_servicio(request):
         # Webpay: reemplaza con tus credenciales reales
         tx = Transaction(WebpayOptions(
             commerce_code='597055555532',
-            api_key='X',
+            api_key='597055555532',  # API Key correcta para ambiente de prueba
             integration_type='TEST'
         ))
+
 
         buy_order = str(random.randint(100000, 999999))
         session_id = str(request.user.id)
@@ -287,7 +288,7 @@ def retorno_pago(request):
 
     tx = Transaction(WebpayOptions(
         commerce_code='597055555532',
-        api_key='X',
+        api_key='597055555532',  # API Key correcta para ambiente de prueba
         integration_type='TEST'
     ))
 
@@ -297,10 +298,10 @@ def retorno_pago(request):
         data = request.session.pop('solicitud_data')
 
         with connection.cursor() as cursor:
-            cursor.callproc('SP_CREAR_SOLICITUD_SERVICIO', [
+            cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?", [
                 data['rutcli'], data['tipo'], data['descripcion'], data['fecha'], data['hora']
             ])
-            cursor.callproc('SP_CREAR_FACTURA', [
+            cursor.execute("EXEC SP_CREAR_FACTURA ?, ?, ?, ?", [
                 data['rutcli'], f"Servicio: {data['tipo']}", data['fecha'], data['precio']
             ])
 
@@ -311,10 +312,10 @@ def retorno_pago(request):
 @login_required
 def ver_facturas(request, rut):
     with connection.cursor() as cursor:
-        cursor.callproc("SP_OBTENER_FACTURAS", [rut])
+        cursor.execute("EXEC SP_OBTENER_FACTURAS ?", [rut])
         facturas = cursor.fetchall()
 
-        cursor.callproc("SP_OBTENER_GUIAS_DE_DESPACHO")
+        cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
         guias = cursor.fetchall()
 
     return render(request, "core/facturas.html", {
