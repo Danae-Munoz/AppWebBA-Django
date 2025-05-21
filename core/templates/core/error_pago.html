@@ -1,0 +1,7 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Error en el Pago</h2>
+<p>Lo sentimos, ocurrió un problema al procesar el pago.</p>
+<p><strong>Error:</strong> {{ mensaje }}</p>
+<a href="{% url 'ingresar_solicitud_servicio' %}">Volver e intentar nuevamente</a>
+{% endblock %}

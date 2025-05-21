@@ -1,8 +1,8 @@
 from django.urls import path
 from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views
-from .views import home, administrar_productos, tienda, ficha, ingresar_solicitud_servicio
-from .views import iniciar_sesion, registrar_usuario, cerrar_sesion, retorno_pago, ver_facturas
+from .views import home, administrar_productos, tienda, ficha, iniciar_pago_servicio,retorno_pago_servicio 
+from .views import iniciar_sesion, registrar_usuario, cerrar_sesion, ingresar_solicitud_servicio, ver_facturas
 from .views import perfil_usuario, iniciar_pago, pago_exitoso, obtener_solicitudes_de_servicio
 
 urlpatterns = [
@@ -20,6 +20,8 @@ urlpatterns = [
     path('tienda', tienda, name="tienda"),
     path('cerrar_sesion/', cerrar_sesion, name='cerrar_sesion'),
     path('ingresar_solicitud_servicio/', ingresar_solicitud_servicio, name='ingresar_solicitud_servicio'),
-    path('retorno_pago/', retorno_pago, name='retorno_pago'),
-    path('facturas/<str:rut>/', ver_facturas, name='ver_facturas'),
+    path('iniciar_pago_servicio/', iniciar_pago_servicio, name='iniciar_pago_servicio'),
+    path('retorno_pago_servicio/', retorno_pago_servicio, name='retorno_pago_servicio'),
+    path('ver_facturas/<rut>/', ver_facturas, name="ver_facturas"),
+
 ]

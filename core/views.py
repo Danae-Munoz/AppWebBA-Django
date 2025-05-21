@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Producto, PerfilUsuario
+from urllib.parse import urlencode
 from .forms import ProductoForm, IniciarSesionForm
 from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 #from .error.transbank_error import TransbankError
@@ -252,9 +253,32 @@ def obtener_solicitudes_de_servicio(request):
     data = {'tipousu': tipousu }
     return render(request, "core/obtener_solicitudes_de_servicio.html", data)
 
+# Nuevo
 @login_required
+@csrf_exempt
 def ingresar_solicitud_servicio(request):
-    if request.method == 'POST' and request.POST.get("accion") == "pagar":
+    if request.method == 'POST':
+        if not request.user.is_staff:
+            # Guardar los datos en la sesión para la siguiente vista
+            data = {
+                'tipo': request.POST.get('tipo'),
+                'descripcion': request.POST.get('descripcion'),
+                'fecha': request.POST.get('fecha'),
+                'hora': request.POST.get('hora'),
+                'precio': 25000
+            }
+            request.session['solicitud_data'] = data
+            return redirect('iniciar_pago_servicio')  # SIN ID, solo por sesión
+        else:
+            return render(request, "core/ingresar_solicitud_servicio.html", {
+                "mesg": "¡Debe iniciar sesión como cliente!"
+            })
+    return render(request, "core/ingresar_solicitud_servicio.html")
+
+@csrf_exempt
+@login_required
+def iniciar_pago_servicio(request):
+    if request.method == 'POST':
         data = {
             'rutcli': request.user.perfilusuario.rut,
             'tipo': request.POST['tipo'],
@@ -264,50 +288,93 @@ def ingresar_solicitud_servicio(request):
             'precio': 25000
         }
 
-        # Webpay: reemplaza con tus credenciales reales
+        buy_order = str(random.randint(100000, 999999))
+        session_id = request.user.username
+        return_url = request.build_absolute_uri('/retorno_pago_servicio/')
+
         tx = Transaction(WebpayOptions(
             commerce_code='597055555532',
-            api_key='597055555532',  # API Key correcta para ambiente de prueba
+            api_key='579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
             integration_type='TEST'
         ))
 
-
-        buy_order = str(random.randint(100000, 999999))
-        session_id = str(request.user.id)
-        return_url = request.build_absolute_uri('/retorno_pago/')
         response = tx.create(buy_order, session_id, data['precio'], return_url)
+        token = response['token']
 
+        # Guardar los datos en sesión para usarlos después del pago
         request.session['solicitud_data'] = data
-        return redirect(response['url'] + "?token_ws=" + response['token'])
+        request.session['solicitud_token'] = token
 
-    return render(request, "core/ingresar_solicitud_servicio.html")
+        perfil = PerfilUsuario.objects.get(user=request.user)
 
+        return render(request, "core/iniciar_pago_servicio.html", {
+            "buy_order": buy_order,
+            "session_id": session_id,
+            "amount": data['precio'],
+            "return_url": return_url,
+            "token_ws": token,
+            "url_tbk": response['url'],
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "email": request.user.email,
+            "rut": perfil.rut,
+            "dirusu": perfil.dirusu,
+            "tipo": data['tipo'],
+            "descripcion": data['descripcion'],
+            "fecha": data['fecha'],
+            "hora": data['hora'],
+            "precio": data['precio'],
+        })
+
+
+
+@csrf_exempt
 @login_required
-def retorno_pago(request):
+def retorno_pago_servicio(request):
     token = request.GET.get("token_ws")
 
     tx = Transaction(WebpayOptions(
         commerce_code='597055555532',
-        api_key='597055555532',  # API Key correcta para ambiente de prueba
+        api_key='579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
         integration_type='TEST'
     ))
 
-    result = tx.commit(token)
+    response = tx.commit(token)
 
-    if result['status'] == 'AUTHORIZED':
-        data = request.session.pop('solicitud_data')
+    if response['status'] == 'AUTHORIZED':
+        data = request.session.pop('solicitud_data', None)
+
+        if not data:
+            return render(request, "core/error_pago.html", {
+                "mensaje": "No se encontraron datos de la solicitud."
+            })
 
         with connection.cursor() as cursor:
-            cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?", [
-                data['rutcli'], data['tipo'], data['descripcion'], data['fecha'], data['hora']
+            # Crear factura
+            cursor.execute("EXEC SP_CREAR_FACTURA ?, ?, ?, ?, ?", [
+                data['rutcli'], None, data['fecha'], f"Servicio: {data['tipo']}", data['precio']
             ])
-            cursor.execute("EXEC SP_CREAR_FACTURA ?, ?, ?, ?", [
-                data['rutcli'], f"Servicio: {data['tipo']}", data['fecha'], data['precio']
+            nrofac = cursor.fetchone()[0]
+
+            # Obtener técnico aleatorio
+            cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
+            tecnicos = cursor.fetchall()
+            ruttec = tecnicos[random.randint(0, len(tecnicos) - 1)][0]
+
+            # Ejecutar procedimiento real aquí
+            cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO ?, ?, ?, ?, ?, ?", [
+                nrofac, data['tipo'], data['descripcion'], data['fecha'], data['hora'], ruttec
             ])
 
         return render(request, "core/solicitud_exitosa.html")
 
-    return redirect("home")
+    # Si el pago falla, no se guarda nada
+    request.session.pop('solicitud_data', None)
+    return render(request, "core/error_pago.html", {
+        "mensaje": "Transacción rechazada por Webpay o no autorizada."
+    })
+
+
 
 @login_required
 def ver_facturas(request, rut):
