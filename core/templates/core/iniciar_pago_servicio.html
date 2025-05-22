@@ -20,17 +20,30 @@
   {% comment %} <label>Hora de la visita:</label><br>
   <input type="text" value="{{ hora }}" disabled><br><br> {% endcomment %}
 
-  <h3>Datos del Cliente</h3>
-  <p><strong>Nombre:</strong> {{ first_name }} {{ last_name }}</p>
-  <p><strong>Email:</strong> {{ email }}</p>
-  <p><strong>RUT:</strong> {{ rut }}</p>
-  <p><strong>Dirección:</strong> {{ dirusu }}</p>
+  {% if not estado %}
+    <button type="submit">Confirmar y Pagar</button>
+    <a href="{% url 'ingresar_solicitud_servicio' %}">
+      <button type="button">Cancelar</button>
+    </a>
+  {% endif %}
 
-  <button type="submit">Confirmar y Pagar</button>
-  <a href="{% url 'ingresar_solicitud_servicio' %}">
-    <button type="button">Cancelar</button>
-  </a>
 </form>
+{% if estado == "exito" %}
+  <div style="text-align: center; margin-top: 30px;">
+    <h2 style="color: green;">{{ mensaje }}</h2>
+    <p>Gracias por confiar en nosotros.</p>
+    <a href="{% url 'ver_facturas' rut %}">
+      <button class="btn btn-primary">Ir a Mis Facturas</button>
+    </a>
+  </div>
+{% elif estado == "error" %}
+  <div style="text-align: center; margin-top: 30px;">
+    <h2 style="color: red;">¡Ha ocurrido un error!</h2>
+    <p>{{ mensaje }}</p>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Volver al inicio</a>
+  </div>
+{% endif %}
+
 
 {% endblock %}
 

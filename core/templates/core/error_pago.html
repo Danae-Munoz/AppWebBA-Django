@@ -1,10 +1,40 @@
 {% extends 'core/base.html' %}
-
 {% block content %}
-<div style="text-align: center; padding: 50px;">
-  <h2 style="color: red;">¡Ha ocurrido un error!</h2>
-  <p>{{ mensaje }}</p>
-  <br>
-  <a href="{% url 'home' %}" class="btn btn-primary">Volver al inicio</a>
-</div>
+<h2>Confirmar Solicitud de Servicio</h2>
+
+  <form method="GET" action="{{ url_tbk }}">
+    <input type="hidden" name="token_ws" value="{{ token_ws }}">
+
+    <label>Precio de la visita:</label>
+    <input type="text" name="precio" value="${{ precio }}" disabled><br><br>
+
+    <label>Tipo de solicitud:</label>
+    <input type="text" name="tipo" value="{{ tipo }}" disabled><br><br>
+
+    <label>Descripción:</label><br>
+    <textarea name="descripcion" rows="4" cols="50" disabled>{{ descripcion }}</textarea><br><br>
+
+    <label>Fecha de la visita:</label>
+    <input type="text" name="fecha" value="{{ fecha }}" disabled><br><br>
+
+    {% comment %} <label>Hora de la visita:</label><br>
+    <input type="text" value="{{ hora }}" disabled><br><br> {% endcomment %}
+
+    <button type="submit">Confirmar y Pagar</button>
+    <a href="{% url 'ingresar_solicitud_servicio' %}">
+      <button type="button">Cancelar</button>
+    </a>
+  </form>
+  <div style="text-align: center; margin-top: 50px;">
+    <h2 style="color: green;">¡Su Solicitud de Servicio ha sido generada con éxito!</h2>
+    <p>Gracias por confiar en nosotros.</p>
+    <p>Puede revisar su factura en el menú <strong>Mis compras</strong>.</p>
+
+    <br>
+    <a href="{% url 'ver_facturas' request.user.perfilusuario.rut %}">
+      <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+        Ir a Mis Facturas
+      </button>
+    </a>
+  </div>
 {% endblock %}

@@ -338,9 +338,13 @@ def iniciar_pago_servicio(request):
     data = request.session.get('solicitud_data')
 
     if not data:
-        return render(request, "core/error_pago.html", {
+        return render(request, "core/iniciar_pago_servicio.html", {
+            "estado": "error",
             "mensaje": "No hay datos de solicitud en sesión."
         })
+
+    # Leer estado de pago si viene de retorno_pago_servicio
+    estado = request.session.pop('pago_estado', None)
 
     print("Webpay Plus Transaction.create")
     buy_order = str(random.randrange(1000000, 99999999))
@@ -374,8 +378,9 @@ def iniciar_pago_servicio(request):
         "descripcion": data['descripcion'],
         "fecha": data['fecha'],
         "precio": data['precio'],
+        "estado": estado['estado'] if estado else None,
+        "mensaje": estado['mensaje'] if estado else None
     })
-
 
 @csrf_exempt
 def retorno_pago_servicio(request):
@@ -391,14 +396,24 @@ def retorno_pago_servicio(request):
         response = tx.commit(token=token)
         print("response: {}".format(response))
 
+        # ❗ Validar estado del pago
+        if response['status'] != 'AUTHORIZED':
+            request.session['pago_estado'] = {
+                'estado': 'error',
+                'mensaje': 'Transacción rechazada por Webpay o no autorizada.'
+            }
+            return redirect('iniciar_pago_servicio')
+
         user = User.objects.get(username=response['session_id'])
         perfil = PerfilUsuario.objects.get(user=user)
 
-        data = request.session.pop('solicitud_data', None)
+        data = request.session.get('solicitud_data')
         if not data:
-            return render(request, "core/error_pago.html", {
-                "mensaje": "No se encontró la solicitud en sesión."
-            })
+            request.session['pago_estado'] = {
+                'estado': 'error',
+                'mensaje': 'No se encontró la solicitud en sesión.'
+            }
+            return redirect('iniciar_pago_servicio')
 
         try:
             with connection.cursor() as cursor:
@@ -419,9 +434,11 @@ def retorno_pago_servicio(request):
                 cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
                 tecnicos = cursor.fetchall()
                 if not tecnicos:
-                    return render(request, "core/error_pago.html", {
-                        "mensaje": "No hay técnicos disponibles."
-                    })
+                    request.session['pago_estado'] = {
+                        'estado': 'error',
+                        'mensaje': 'No hay técnicos disponibles.'
+                    }
+                    return redirect('iniciar_pago_servicio')
 
                 ruttec = random.choice(tecnicos)[0]
 
@@ -434,12 +451,18 @@ def retorno_pago_servicio(request):
                     idprod
                 ])
 
-            return render(request, "core/solicitud_exitosa.html")
+            request.session['pago_estado'] = {
+                'estado': 'exito',
+                'mensaje': '¡Su Solicitud de Servicio ha sido generada con éxito!'
+            }
+            return redirect('iniciar_pago_servicio')
 
         except Exception as e:
-            return render(request, "core/error_pago.html", {
-                "mensaje": f"Ocurrió un error al procesar la solicitud: {str(e)}"
-            })
+            request.session['pago_estado'] = {
+                'estado': 'error',
+                'mensaje': f'Ocurrió un error al procesar la solicitud: {str(e)}'
+            }
+            return redirect('iniciar_pago_servicio')
     else:
         return redirect('home')
 
