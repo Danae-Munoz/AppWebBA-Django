@@ -469,14 +469,21 @@ def retorno_pago_servicio(request):
 @login_required
 def ver_facturas(request, rut):
     with connection.cursor() as cursor:
-        cursor.execute("EXEC SP_OBTENER_FACTURAS @rutcli = %s", [rut])
+        cursor.execute("EXEC SP_OBTENER_FACTURAS %s", [rut])
         facturas = cursor.fetchall()
 
         cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
         guias = cursor.fetchall()
 
-    return render(request, "core/facturas.html", {
+        cursor.execute("""
+            SELECT s.nrosol, s.nrofac, s.estadosol
+            FROM SolicitudServicio s
+        """)
+        solicitudes = cursor.fetchall()
+
+    return render(request, 'core/facturas.html', {
         "facturas": facturas,
         "guias": guias,
+        "solicitudes": solicitudes,
         "es_admin": rut == "admin"
     })

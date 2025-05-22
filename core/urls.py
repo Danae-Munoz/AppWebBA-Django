@@ -22,6 +22,6 @@ urlpatterns = [
     path('ingresar_solicitud_servicio/', ingresar_solicitud_servicio, name='ingresar_solicitud_servicio'),
     path('iniciar_pago_servicio/', iniciar_pago_servicio, name='iniciar_pago_servicio'),
     path('retorno_pago_servicio/', retorno_pago_servicio, name='retorno_pago_servicio'),
-    path('ver_facturas/<rut>/', ver_facturas, name="ver_facturas"),
+    path('ver_facturas/<str:rut>/', ver_facturas, name='ver_facturas'),
 
 ]

@@ -1,0 +1,262 @@
+/* servicios.css - Estilos para la página de confirmación de servicio */
+
+/* Variables de color (consistentes con el tema) */
+:root {
+    --primary-color: #0066cc;
+    --primary-dark: #004d99;
+    --secondary-color: #ff7b00;
+    --dark-color: #1a2b4a;
+    --text-color: #4a5568;
+    --light-color: #f8fafc;
+    --border-color: #e2e8f0;
+    --success-color: #38a169;
+    --error-color: #dc2626;
+}
+
+/* Contenedor principal */
+.service-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+/* Tarjeta de confirmación */
+.service-confirmation-card {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 86, 179, 0.08);
+}
+
+/* Encabezado de sección */
+.section-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-preheading {
+    color: var(--secondary-color);
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.section-description {
+    color: var(--text-color);
+}
+
+/* Elementos del formulario */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--dark-color);
+}
+
+.form-control {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.form-control.textarea {
+    min-height: 120px;
+}
+
+/* Acciones del formulario */
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-family: 'Open Sans', sans-serif;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+}
+
+/* Tarjetas de resultado */
+.result-card {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 86, 179, 0.08);
+    text-align: center;
+}
+
+.status-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 2.5rem;
+}
+
+.success .status-icon {
+    background-color: rgba(56, 161, 105, 0.1);
+    color: var(--success-color);
+}
+
+.error .status-icon {
+    background-color: rgba(220, 38, 38, 0.1);
+    color: var(--error-color);
+}
+
+.result-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+.success .result-title {
+    color: var(--success-color);
+}
+
+.error .result-title {
+    color: var(--error-color);
+}
+
+.result-message {
+    color: var(--text-color);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .service-confirmation-card,
+    .result-card {
+        padding: 30px 20px;
+    }
+    
+    .section-title {
+        font-size: 1.6rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .service-container {
+        margin: 30px auto;
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+    }
+    
+    .result-title {
+        font-size: 1.5rem;
+    }
+}
+/* Mensajes de resultado */
+.result-message {
+    padding: 20px;
+    margin-top: 30px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.result-message i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.result-message h3 {
+    margin-bottom: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.result-message p {
+    margin-bottom: 20px;
+}
+
+.success {
+    background-color: rgba(56, 161, 105, 0.1);
+    border-left: 4px solid var(--success-color);
+}
+
+.success i {
+    color: var(--success-color);
+}
+
+.success h3 {
+    color: var(--success-color);
+}
+
+.error {
+    background-color: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--error-color);
+}
+
+.error i {
+    color: var(--error-color);
+}
+
+.error h3 {
+    color: var(--error-color);
+}

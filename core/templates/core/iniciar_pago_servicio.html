@@ -1,50 +1,70 @@
 {% extends 'core/base.html' %}
-{% block content %}
-<h2>Confirmar Solicitud de Servicio</h2>
+{% load static %}
 
-<form method="GET" action="{{ url_tbk }}">
-  <input type="hidden" name="token_ws" value="{{ token_ws }}">
-
-  <label>Precio de la visita:</label>
-  <input type="text" name="precio" value="${{ precio }}" disabled><br><br>
-
-  <label>Tipo de solicitud:</label>
-  <input type="text" name="tipo" value="{{ tipo }}" disabled><br><br>
-
-  <label>Descripción:</label><br>
-  <textarea name="descripcion" rows="4" cols="50" disabled>{{ descripcion }}</textarea><br><br>
-
-  <label>Fecha de la visita:</label>
-  <input type="text" name="fecha" value="{{ fecha }}" disabled><br><br>
-
-  {% comment %} <label>Hora de la visita:</label><br>
-  <input type="text" value="{{ hora }}" disabled><br><br> {% endcomment %}
-
-  {% if not estado %}
-    <button type="submit">Confirmar y Pagar</button>
-    <a href="{% url 'ingresar_solicitud_servicio' %}">
-      <button type="button">Cancelar</button>
-    </a>
-  {% endif %}
-
-</form>
-{% if estado == "exito" %}
-  <div style="text-align: center; margin-top: 30px;">
-    <h2 style="color: green;">{{ mensaje }}</h2>
-    <p>Gracias por confiar en nosotros.</p>
-    <a href="{% url 'ver_facturas' rut %}">
-      <button class="btn btn-primary">Ir a Mis Facturas</button>
-    </a>
-  </div>
-{% elif estado == "error" %}
-  <div style="text-align: center; margin-top: 30px;">
-    <h2 style="color: red;">¡Ha ocurrido un error!</h2>
-    <p>{{ mensaje }}</p>
-    <a href="{% url 'home' %}" class="btn btn-secondary">Volver al inicio</a>
-  </div>
-{% endif %}
-
-
+{% block stylesheet %}
+    <link href="{% static 'core/css/servicios.css' %}?v=4.1" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
+{% block content %}
+<div class="service-container">
+    <div class="service-confirmation-card">
+        <!-- Título condicional -->
+        <h2 class="section-title">
+            {% if estado %}
+                Ingresar una Solicitud de Servicio
+            {% else %}
+                Confirmar Solicitud de Servicio
+            {% endif %}
+        </h2>
 
+        <form method="GET" action="{{ url_tbk }}">
+            <input type="hidden" name="token_ws" value="{{ token_ws }}">
+
+            <div class="form-group">
+                <label>Precio de la visita:</label>
+                <input type="text" class="form-control" name="precio" value="${{ precio }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de solicitud:</label>
+                <input type="text" class="form-control" name="tipo" value="{{ tipo }}" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Descripción:</label>
+                <textarea class="form-control textarea" name="descripcion" rows="4" disabled>{{ descripcion }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de la visita:</label>
+                <input type="text" class="form-control" name="fecha" value="{{ fecha }}" disabled>
+            </div>
+
+            {% if not estado %}
+            <div class="form-actions">
+                <a href="{% url 'ingresar_solicitud_servicio' %}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Confirmar y Pagar</button>
+            </div>
+            {% endif %}
+        </form>
+
+        {% if estado == "exito" %}
+        <div class="result-message success">
+            <i class="fas fa-check-circle"></i>
+            <h3>{{ mensaje }}</h3>
+            <p>Gracias por confiar en nosotros.</p>
+            <a href="{% url 'ver_facturas' rut %}" class="btn btn-primary">Ir a Mis Facturas</a>
+        </div>
+        {% elif estado == "error" %}
+        <div class="result-message error">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>¡Ha ocurrido un error!</h3>
+            <p>{{ mensaje }}</p>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Volver al inicio</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

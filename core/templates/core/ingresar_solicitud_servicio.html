@@ -1,34 +1,59 @@
 {% extends 'core/base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/servicios.css' %}?v=4.1" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
 {% block content %}
-<h2>Ingresar una Solicitud de Servicio</h2>
+<div class="service-container">
+    <div class="service-confirmation-card">
+        <div class="section-header">
+            <span class="section-preheading">Nuevo Servicio</span>
+            <h2 class="section-title">Ingresar una Solicitud de Servicio</h2>
+        </div>
 
-<form method="post" action="{% url 'ingresar_solicitud_servicio' %}">
-  {% csrf_token %}
+        <form method="post" action="{% url 'ingresar_solicitud_servicio' %}">
+            {% csrf_token %}
 
-  <label>Precio de la visita:</label>
-  <input type="text" name="precio" value="25000" readonly><br><br>
+            <div class="form-group">
+                <label>Precio de la visita:</label>
+                <input type="text" class="form-control" name="precio" value="25000" readonly>
+            </div>
 
-  <label>Tipo de solicitud:</label>
-  <select name="tipo" required>
-    <option value="">Seleccione un tipo</option>
-    <option value="Mantención">Mantención</option>
-    <option value="Reparación">Reparación</option>
-  </select><br><br>
+            <div class="form-group">
+                <label>Tipo de solicitud:</label>
+                <select class="form-control" name="tipo" required>
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Mantención">Mantención</option>
+                    <option value="Reparación">Reparación</option>
+                </select>
+            </div>
 
-  <label>Descripción:</label><br>
-  <textarea name="descripcion" rows="4" cols="50" required></textarea><br><br>
+            <div class="form-group">
+                <label>Descripción:</label>
+                <textarea class="form-control textarea" name="descripcion" rows="4" required></textarea>
+            </div>
 
-  <label>Fecha de la visita:</label>
-  <input type="date" name="fecha" required><br><br>
+            <div class="form-group">
+                <label>Fecha de la visita:</label>
+                <input type="date" class="form-control" name="fecha" required>
+            </div>
 
-  {% comment %} <label>Hora de la visita:</label>
-  <input type="time" name="hora" required><br><br> {% endcomment %}
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Pagar</button>
+                <button type="reset" class="btn btn-secondary">Limpiar</button>
+                
+            </div>
+        </form>
 
-  <button type="submit">Pagar</button>
-  <button type="reset">Limpiar</button>
-</form>
-
-{% if mesg %}
-<p style="color: red;">{{ mesg }}</p>
-{% endif %}
+        {% if mesg %}
+        <div class="error-message" style="color: var(--error-color); margin-top: 20px; text-align: center;">
+            <i class="fas fa-exclamation-circle"></i> {{ mesg }}
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
