@@ -72,6 +72,7 @@ class SolicitudServicio(models.Model):
     nrosol = models.IntegerField(primary_key=True)
     nrofac = models.ForeignKey(Factura, models.DO_NOTHING, db_column='nrofac', null=False, blank=False)
     tiposol = models.CharField(choices=TIPOSOL_CHOICES, max_length=50, null=False, blank=False)
+    idprod = models.ForeignKey(Producto, models.DO_NOTHING, db_column='idprod', null=False, blank=False)
     fechavisita = models.DateField(null=False, blank=False)
     ruttec = models.ForeignKey(PerfilUsuario, models.DO_NOTHING, db_column='ruttec', null=False, blank=False)
     descsol = models.CharField(max_length=200, null=False, blank=False)

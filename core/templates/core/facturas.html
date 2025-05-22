@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% block content %}
+
+<h2>Facturas</h2>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nro Factura</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Monto</th>
+            <th>Estado de Guía</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fac in facturas %}
+        <tr>
+            <td>{{ fac.0 }}</td> <!-- nrofac -->
+            <td>{{ fac.1 }}</td> <!-- nombre cliente -->
+            <td>{{ fac.2 }}</td> <!-- fecha -->
+            <td>{{ fac.3 }}</td> <!-- descripción -->
+            <td>{{ fac.4 }}</td> <!-- monto -->
+            <td>
+                {% for guia in guias %}
+                    {% if guia.1 == fac.0 %}  <!-- si nrofac en guía = nrofac en factura -->
+                        {{ guia.3 }}  <!-- estado de la guía -->
+                    {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

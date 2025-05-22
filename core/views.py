@@ -1,14 +1,17 @@
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from .models import Producto, PerfilUsuario
+from urllib.parse import urlencode
 from .forms import ProductoForm, IniciarSesionForm
 from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 #from .error.transbank_error import TransbankError
 from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
 from django.db import connection
 import random
+from datetime import date
 import requests
 
 def home(request):
@@ -43,7 +46,8 @@ def cerrar_sesion(request):
     return redirect(home)
 
 def tienda(request):
-    data = {"list": Producto.objects.all().order_by('idprod')}
+    productos = Producto.objects.exclude(idprod__in=[9, 10, 11]).order_by('idprod')
+    data = {"list": productos}
     return render(request, "core/tienda.html", data)
 
 # https://www.transbankdevelopers.cl/documentacion/como_empezar#como-empezar
@@ -93,35 +97,35 @@ def ficha(request, id):
 
 @csrf_exempt
 def iniciar_pago(request, id):
-
-    # Esta es la implementacion de la VISTA iniciar_pago, que tiene la responsabilidad
-    # de iniciar el pago, por medio de WebPay. Lo primero que hace es seleccionar un 
-    # número de orden de compra, para poder así, identificar a la propia compra.
-    # Como esta tienda no maneja, en realidad no tiene el concepto de "orden de compra"
-    # pero se indica igual
     print("Webpay Plus Transaction.create")
     buy_order = str(random.randrange(1000000, 99999999))
     session_id = request.user.username
-    amount = Producto.objects.get(idprod=id).precio
+
+    producto = Producto.objects.get(idprod=id)
+    precio_producto = producto.precio
+    precio_instalacion = 25000
+    total_pagar = precio_producto + precio_instalacion
+
     return_url = request.build_absolute_uri('/pago_exitoso/')
 
-    # response = Transaction.create(buy_order, session_id, amount, return_url)
-    commercecode = "597055555532"
-    apikey = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C"
+    # Guardar producto comprado en sesión
+    request.session['producto_comprado_id'] = producto.idprod
 
-    tx = Transaction(options=WebpayOptions(commerce_code=commercecode, api_key=apikey, integration_type="TEST"))
-    response = tx.create(buy_order, session_id, amount, return_url)
+    # Transacción de prueba Webpay
+    tx = Transaction(WebpayOptions(
+        commerce_code="597055555532",
+        api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+        integration_type="TEST"
+    ))
+    response = tx.create(buy_order, session_id, total_pagar, return_url)
     print(response['token'])
 
     perfil = PerfilUsuario.objects.get(user=request.user)
-    form = PerfilUsuarioForm()
 
     context = {
         "buy_order": buy_order,
         "session_id": session_id,
-        "amount": amount,
         "return_url": return_url,
-        "response": response,
         "token_ws": response['token'],
         "url_tbk": response['url'],
         "first_name": request.user.first_name,
@@ -129,25 +133,81 @@ def iniciar_pago(request, id):
         "email": request.user.email,
         "rut": perfil.rut,
         "dirusu": perfil.dirusu,
+        "producto": producto,
+        "precio_producto": precio_producto,
+        "precio_instalacion": precio_instalacion,
+        "total_pagar": total_pagar,
     }
 
     return render(request, "core/iniciar_pago.html", context)
 
 @csrf_exempt
 def pago_exitoso(request):
-
     if request.method == "GET":
         token = request.GET.get("token_ws")
         print("commit for token_ws: {}".format(token))
-        commercecode = "597055555532"
-        apikey = "579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C"
-        tx = Transaction(options=WebpayOptions(commerce_code=commercecode, api_key=apikey, integration_type="TEST"))
+
+        tx = Transaction(options=WebpayOptions(
+            commerce_code="597055555532",
+            api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+            integration_type="TEST"
+        ))
+
         response = tx.commit(token=token)
         print("response: {}".format(response))
 
         user = User.objects.get(username=response['session_id'])
         perfil = PerfilUsuario.objects.get(user=user)
-        form = PerfilUsuarioForm()
+
+        try:
+            idprod_comprado = request.session.pop("producto_comprado_id", None)
+            if not idprod_comprado:
+                raise Exception("No se encontró el producto comprado en sesión.")
+
+            producto = Producto.objects.get(idprod=idprod_comprado)
+            fecha_actual = date.today()
+
+            with connection.cursor() as cursor:
+                # Crear factura de compra
+                cursor.execute("EXEC SP_CREAR_FACTURA %s, %s, %s, %s, %s", [
+                    perfil.rut,
+                    producto.idprod,
+                    fecha_actual,
+                    f"Compra de equipo: {producto.nomprod}",
+                    producto.precio
+                ])
+
+                # Crear factura de instalación
+                cursor.execute("EXEC SP_CREAR_FACTURA %s, %s, %s, %s, %s", [
+                    perfil.rut,
+                    10,  # ID del servicio de instalación
+                    fecha_actual,
+                    "Instalación de equipo nuevo",
+                    25000
+                ])
+                nrofac_instalacion = cursor.fetchone()[0]
+
+                # Seleccionar técnico aleatorio
+                cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
+                tecnicos = cursor.fetchall()
+                if not tecnicos:
+                    raise Exception("No hay técnicos disponibles.")
+                ruttec = random.choice(tecnicos)[0]
+
+                # Crear solicitud de instalación
+                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s", [
+                    nrofac_instalacion,
+                    "Instalación",
+                    "Instalación de equipo nuevo comprado por el cliente.",
+                    fecha_actual,
+                    ruttec,
+                    10
+                ])
+
+        except Exception as e:
+            return render(request, "core/error_pago.html", {
+                "mensaje": f"Ocurrió un error al procesar la solicitud de instalación: {str(e)}"
+            })
 
         context = {
             "buy_order": response['buy_order'],
@@ -160,12 +220,14 @@ def pago_exitoso(request):
             "email": user.email,
             "rut": perfil.rut,
             "dirusu": perfil.dirusu,
+            "precio_producto": producto.precio,
+            "precio_instalacion": 25000,
             "response_code": response['response_code']
         }
 
         return render(request, "core/pago_exitoso.html", context)
     else:
-        return redirect(home)
+        return redirect("home")
 
 @csrf_exempt
 def administrar_productos(request, action, id):
@@ -250,3 +312,148 @@ def obtener_solicitudes_de_servicio(request):
     tipousu = PerfilUsuario.objects.get(user=request.user).tipousu
     data = {'tipousu': tipousu }
     return render(request, "core/obtener_solicitudes_de_servicio.html", data)
+
+# Nuevo
+@csrf_exempt
+def ingresar_solicitud_servicio(request):
+    if request.method == 'POST':
+        if not request.user.is_staff:
+            data = {
+                'tipo': request.POST.get('tipo'),
+                'descripcion': request.POST.get('descripcion'),
+                'fecha': request.POST.get('fecha'),
+                'precio': 25000
+            }
+            request.session['solicitud_data'] = data
+            return redirect('iniciar_pago_servicio')  # Aquí se redirige solo cuando ya se guardó bien
+        else:
+            return render(request, "core/ingresar_solicitud_servicio.html", {
+                "mesg": "¡Debe iniciar sesión como cliente!"
+            })
+    return render(request, "core/ingresar_solicitud_servicio.html")
+
+@csrf_exempt
+@login_required
+def iniciar_pago_servicio(request):
+    data = request.session.get('solicitud_data')
+
+    if not data:
+        return render(request, "core/error_pago.html", {
+            "mensaje": "No hay datos de solicitud en sesión."
+        })
+
+    print("Webpay Plus Transaction.create")
+    buy_order = str(random.randrange(1000000, 99999999))
+    session_id = request.user.username
+    amount = data['precio']
+    return_url = request.build_absolute_uri('/retorno_pago_servicio/')
+
+    tx = Transaction(WebpayOptions(
+        commerce_code="597055555532",
+        api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+        integration_type="TEST"
+    ))
+    response = tx.create(buy_order, session_id, amount, return_url)
+
+    perfil = PerfilUsuario.objects.get(user=request.user)
+
+    return render(request, "core/iniciar_pago_servicio.html", {
+        "buy_order": buy_order,
+        "session_id": session_id,
+        "amount": amount,
+        "return_url": return_url,
+        "response": response,
+        "token_ws": response['token'],
+        "url_tbk": response['url'],
+        "first_name": request.user.first_name,
+        "last_name": request.user.last_name,
+        "email": request.user.email,
+        "rut": perfil.rut,
+        "dirusu": perfil.dirusu,
+        "tipo": data['tipo'],
+        "descripcion": data['descripcion'],
+        "fecha": data['fecha'],
+        "precio": data['precio'],
+    })
+
+
+@csrf_exempt
+def retorno_pago_servicio(request):
+    if request.method == 'GET':
+        token = request.GET.get("token_ws")
+        print("commit for token_ws: {}".format(token))
+
+        tx = Transaction(WebpayOptions(
+            commerce_code="597055555532",
+            api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C",
+            integration_type="TEST"
+        ))
+        response = tx.commit(token=token)
+        print("response: {}".format(response))
+
+        user = User.objects.get(username=response['session_id'])
+        perfil = PerfilUsuario.objects.get(user=user)
+
+        data = request.session.pop('solicitud_data', None)
+        if not data:
+            return render(request, "core/error_pago.html", {
+                "mensaje": "No se encontró la solicitud en sesión."
+            })
+
+        try:
+            with connection.cursor() as cursor:
+                monto = int(data['precio'])
+                tiposol = data['tipo']
+                rutcli = perfil.rut
+                idprod = 9 if tiposol == 'Mantención' else 10
+
+                cursor.execute("EXEC SP_CREAR_FACTURA %s, %s, %s, %s, %s", [
+                    rutcli,
+                    idprod,
+                    data['fecha'],
+                    f"Servicio: {tiposol}",
+                    monto
+                ])
+                nrofac = cursor.fetchone()[0]
+
+                cursor.execute("SELECT rut FROM PerfilUsuario WHERE tipousu = 'Técnico'")
+                tecnicos = cursor.fetchall()
+                if not tecnicos:
+                    return render(request, "core/error_pago.html", {
+                        "mensaje": "No hay técnicos disponibles."
+                    })
+
+                ruttec = random.choice(tecnicos)[0]
+
+                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s", [
+                    nrofac,
+                    tiposol,
+                    data['descripcion'],
+                    data['fecha'],
+                    ruttec,
+                    idprod
+                ])
+
+            return render(request, "core/solicitud_exitosa.html")
+
+        except Exception as e:
+            return render(request, "core/error_pago.html", {
+                "mensaje": f"Ocurrió un error al procesar la solicitud: {str(e)}"
+            })
+    else:
+        return redirect('home')
+
+@login_required
+def ver_facturas(request, rut):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC SP_OBTENER_FACTURAS @rutcli = %s", [rut])
+        facturas = cursor.fetchall()
+
+        cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
+        guias = cursor.fetchall()
+
+    return render(request, "core/facturas.html", {
+        "facturas": facturas,
+        "guias": guias,
+        "es_admin": rut == "admin"
+    })

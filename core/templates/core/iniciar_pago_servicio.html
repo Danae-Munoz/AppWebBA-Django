@@ -1,0 +1,37 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Confirmar Solicitud de Servicio</h2>
+
+<form method="GET" action="{{ url_tbk }}">
+  <input type="hidden" name="token_ws" value="{{ token_ws }}">
+
+  <label>Precio de la visita:</label>
+  <input type="text" name="precio" value="${{ precio }}" disabled><br><br>
+
+  <label>Tipo de solicitud:</label>
+  <input type="text" name="tipo" value="{{ tipo }}" disabled><br><br>
+
+  <label>Descripción:</label><br>
+  <textarea name="descripcion" rows="4" cols="50" disabled>{{ descripcion }}</textarea><br><br>
+
+  <label>Fecha de la visita:</label>
+  <input type="text" name="fecha" value="{{ fecha }}" disabled><br><br>
+
+  {% comment %} <label>Hora de la visita:</label><br>
+  <input type="text" value="{{ hora }}" disabled><br><br> {% endcomment %}
+
+  <h3>Datos del Cliente</h3>
+  <p><strong>Nombre:</strong> {{ first_name }} {{ last_name }}</p>
+  <p><strong>Email:</strong> {{ email }}</p>
+  <p><strong>RUT:</strong> {{ rut }}</p>
+  <p><strong>Dirección:</strong> {{ dirusu }}</p>
+
+  <button type="submit">Confirmar y Pagar</button>
+  <a href="{% url 'ingresar_solicitud_servicio' %}">
+    <button type="button">Cancelar</button>
+  </a>
+</form>
+
+{% endblock %}
+
+

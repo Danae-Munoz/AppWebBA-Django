@@ -6,29 +6,36 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Iniciar Proceso de Pago</h1>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-6 borde_formulario">
-                <form method="POST" action="{{ url_tbk }}">
-                    <div class="centrar">
-                        {% csrf_token %}
+<h1>Iniciar Proceso de Pago</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6 borde_formulario">
+            <form method="POST" action="{{ url_tbk }}">
+                <div class="centrar">
+                    {% csrf_token %}
 
-                        Número de Orden de Compra: {{ buy_order }}<br><br>
-                        Nombre cliente: {{ first_name }} {{ last_name }}<br><br>
-                        RUT: {{ rut }}<br><br>
-                        Dirección: {{ dirusu }}<br><br>
-                        Correo electrónico: {{ email }}<br><br>
-                        Monto a Pagar: {{ amount }}<br><br>
+                    <p><strong>Número de Orden de Compra:</strong> {{ buy_order }}</p>
+                    <p><strong>Nombre del Cliente:</strong> {{ first_name }} {{ last_name }}</p>
+                    <p><strong>RUT:</strong> {{ rut }}</p>
+                    <p><strong>Dirección:</strong> {{ dirusu }}</p>
+                    <p><strong>Correo Electrónico:</strong> {{ email }}</p>
 
-                        <input type="hidden" name="token_ws" value="{{ token_ws }}" />
-                        <input type="submit" class="btn btn-primary" value="Ir a pagar">
-                        {% if mesg %}
+                    <hr>
+                    <h5>Detalle del Pago</h5>
+                    <p><strong>Precio del Producto:</strong> ${{ precio_producto }}</p>
+                    <p><strong>Servicio de Instalación:</strong> ${{ precio_instalacion }}</p>
+                    <p style="color: red;"><em>Este servicio es obligatorio al comprar un equipo nuevo.</em></p>
+                    <p><strong>Total a Pagar:</strong> <span style="font-size: 18px;">${{ total_pagar }}</span></p>
+                    <hr>
+
+                    <input type="hidden" name="token_ws" value="{{ token_ws }}" />
+                    <input type="submit" class="btn btn-primary" value="Ir a pagar">
+                    {% if mesg %}
                         <div id="form_message" class="alert alert-danger" role="alert">{{ mesg }}</div>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
+                    {% endif %}
+                </div>
+            </form>
         </div>
     </div>
+</div>
 {% endblock content %}

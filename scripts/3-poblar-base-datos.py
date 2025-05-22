@@ -153,6 +153,93 @@ BEGIN
 END
 """
 
+#Nuevo
+SP_CREAR_SOLICITUD_SERVICIO="""
+CREATE OR ALTER PROCEDURE [dbo].[SP_CREAR_SOLICITUD_SERVICIO]
+    @nrofac INT,
+    @tiposol VARCHAR(50),
+    @descsol VARCHAR(200),
+    @fechavisita DATE,
+    @ruttec VARCHAR(20),
+    @idprod INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nrosol INT;
+    SELECT @nrosol = ISNULL(MAX(nrosol), 0) + 1 FROM SolicitudServicio;
+
+    INSERT INTO SolicitudServicio (
+        nrosol, nrofac, tiposol, descsol, fechavisita, estadosol, ruttec, idprod
+    ) VALUES (
+        @nrosol, @nrofac, @tiposol, @descsol, @fechavisita, 'Aceptada', @ruttec, @idprod
+    );
+END
+"""
+
+SP_CREAR_FACTURA="""
+CREATE OR ALTER PROCEDURE [dbo].[SP_CREAR_FACTURA]
+    @rutcli VARCHAR(20),
+    @idprod INT,
+    @fechafac DATE,
+    @descfac VARCHAR(300),
+    @monto INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @nrofac INT;
+    SELECT @nrofac = ISNULL(MAX(nrofac), 0) + 1 FROM Factura;
+
+    INSERT INTO Factura (
+        nrofac, rutcli, idprod, fechafac, descfac, monto
+    ) VALUES (
+        @nrofac, @rutcli, @idprod, @fechafac, @descfac, @monto
+    );
+
+    SELECT @nrofac AS nrofac;
+END
+"""
+
+SP_OBTENER_FACTURAS="""
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_FACTURAS]
+    @rutcli VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @rutcli = 'admin'
+    BEGIN
+        SELECT f.nrofac, f.rutcli, f.fechafac, f.descfac, f.monto, f.idprod
+        FROM Factura f
+        ORDER BY f.fechafac DESC;
+    END
+    ELSE
+    BEGIN
+        SELECT f.nrofac, f.rutcli, f.fechafac, f.descfac, f.monto, f.idprod
+        FROM Factura f
+        WHERE f.rutcli = @rutcli
+        ORDER BY f.fechafac DESC;
+    END
+END;
+"""
+
+SP_OBTENER_GUIAS_DE_DESPACHO="""
+CREATE OR ALTER PROCEDURE SP_OBTENER_GUIAS_DE_DESPACHO
+AS
+BEGIN
+    SELECT 
+        gd.nrogd,
+        gd.nrofac,
+        gd.idprod,
+        gd.estadogd,
+        f.rutcli
+    FROM 
+        GuiaDespacho gd
+    INNER JOIN Factura f ON gd.nrofac = f.nrofac
+END
+"""
+
 def exec_sql(query):
     with connection.cursor() as cursor:
         cursor.execute(query)
@@ -169,6 +256,9 @@ def run():
     exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (6,N'Kendal 12000',        N'Climat 22-24 m2',    335990,'images/0006.png');")
     exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (7,N'Kendal Wifi 4000',    N'Climat 32-34 m2',    335990,'images/0006.png');")
     exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (8,N'Anwo 12000',          N'Climat 42-44 m2',    335990,'images/0006.png');")
+    exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (9,N'Mantención',          N'Mantención',    25000,'images/0006.png');")
+    exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (10,N'Reparación',          N'Reparación',    25000,'images/0006.png');")
+    exec_sql("INSERT INTO dbo.Producto (idprod, nomprod, descprod, precio, imagen) VALUES (11,N'Instalación',          N'Instalación',    25000,'images/0006.png');")
 
     # Poblar tabla PerfilUsuario
 
@@ -192,7 +282,7 @@ def run():
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (3, N'3333-3', 4, CAST('20220303' AS datetime), N'Anwo Portátil',       25000);")
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (4, N'4444-4', 4, CAST('20220308' AS datetime), N'Anwo Portátil',       25000);")
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (5, N'5555-5', 4, CAST('20220315' AS datetime), N'Anwo Portátil',       25000);")
-    exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (6, N'1111-1', 5, CAST('20220327' AS datetime), N'Mantención',          25000);")
+    exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (6, N'1111-1', 9, CAST('20220327' AS datetime), N'Mantención',          25000);")
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (7, N'1111-1', 5, CAST('20220403' AS datetime), N'GPORT-14',            25000);")
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (8, N'1111-1', 3, CAST('20220408' AS datetime), N'Anwo VP',             25000);")
     exec_sql("INSERT INTO dbo.Factura (nrofac, rutcli, idprod, fechafac, descfac, monto) VALUES (9, N'1111-1', 5, CAST('20220415' AS datetime), N'GPORT-14',            25000);")
@@ -205,15 +295,15 @@ def run():
 
     # Poblar tabla SolicitudServicio
 
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (111, 1, N'Instalación', CAST('20220302 09:00' AS datetime), N'6666-6', N'Instalar equipo', N'Cerrada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (222, 2, N'Instalación', CAST('20220303 10:00' AS datetime), N'6666-6', N'Instalar equipo', N'Aceptada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (333, 3, N'Mantención',  CAST('20220310 15:00' AS datetime), N'6666-6', N'Cambiar enchufe', N'Aceptada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (444, 4, N'Mantención',  CAST('20220315 09:00' AS datetime), N'6666-6', N'Limpiar filtro',  N'Aceptada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (555, 5, N'Reparación',  CAST('20220322 17:00' AS datetime), N'6666-6', N'Reparar equipo',  N'Aceptada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (666, 6, N'Mantención',  CAST('20220403 11:00' AS datetime), N'7777-7', N'Limpiar filtro',  N'Cerrada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (777, 7, N'Reparación',  CAST('20220410 16:00' AS datetime), N'6666-6', N'Reparar aire',    N'Modificada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (888, 8, N'Instalación', CAST('20220415 10:00' AS datetime), N'7777-7', N'Instalar equipo', N'Modificada');")
-    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, fechavisita, ruttec, descsol, estadosol) VALUES (999, 9, N'Reparación',  CAST('20220422 18:00' AS datetime), N'8888-8', N'Enchufe quemado', N'Aceptada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (111, 1, N'Instalación', 11, CAST('20220302 09:00' AS datetime), N'6666-6', N'Instalar equipo', N'Cerrada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (222, 2, N'Instalación', 11, CAST('20220303 10:00' AS datetime), N'6666-6', N'Instalar equipo', N'Aceptada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (333, 3, N'Mantención',  9, CAST('20220310 15:00' AS datetime), N'6666-6', N'Cambiar enchufe', N'Aceptada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (444, 4, N'Mantención',  9, CAST('20220315 09:00' AS datetime), N'6666-6', N'Limpiar filtro',  N'Aceptada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (555, 5, N'Reparación',  10, CAST('20220322 17:00' AS datetime), N'6666-6', N'Reparar equipo',  N'Aceptada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (666, 6, N'Mantención',  9, CAST('20220403 11:00' AS datetime), N'7777-7', N'Limpiar filtro',  N'Cerrada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (777, 7, N'Reparación',  10, CAST('20220410 16:00' AS datetime), N'6666-6', N'Reparar aire',    N'Modificada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (888, 8, N'Instalación', 11, CAST('20220415 10:00' AS datetime), N'7777-7', N'Instalar equipo', N'Modificada');")
+    exec_sql("INSERT INTO dbo.SolicitudServicio (nrosol, nrofac, tiposol, idprod, fechavisita, ruttec, descsol, estadosol) VALUES (999, 9, N'Reparación',  10, CAST('20220422 18:00' AS datetime), N'8888-8', N'Enchufe quemado', N'Aceptada');")
 
     # Poblar tabla StockProducto
 
@@ -265,4 +355,33 @@ def run():
     except:
         pass
 
+
+    #Nuevo
+    try:
+        exec_sql(SP_CREAR_SOLICITUD_SERVICIO)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
+
+    try:
+        exec_sql(SP_CREAR_FACTURA)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
+
+    try:
+        exec_sql(SP_OBTENER_FACTURAS)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
+
+    try:
+        exec_sql(SP_OBTENER_GUIAS_DE_DESPACHO)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
     

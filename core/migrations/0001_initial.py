@@ -82,6 +82,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('nrosol', models.IntegerField(primary_key=True, serialize=False)),
                 ('tiposol', models.CharField(choices=[('Instalación', 'Instalación'), ('Mantención', 'Mantención'), ('Reparación', 'Reparación')], max_length=50)),
+                ('idprod', models.ForeignKey(db_column='idprod', on_delete=django.db.models.deletion.DO_NOTHING, to='core.producto')),
                 ('fechavisita', models.DateField()),
                 ('descsol', models.CharField(max_length=200)),
                 ('estadosol', models.CharField(choices=[('Aceptada', 'Aceptada'), ('Modificada', 'Modificada'), ('Cerrada', 'Cerrada'), ('Anulada', 'Anulada')], max_length=50)),

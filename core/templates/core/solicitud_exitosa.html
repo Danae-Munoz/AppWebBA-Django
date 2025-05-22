@@ -1,0 +1,16 @@
+{% extends 'core/base.html' %}
+{% block content %}
+  <div style="text-align: center; margin-top: 50px;">
+    <h2 style="color: green;">¡Su Solicitud de Servicio ha sido generada con éxito!</h2>
+    <p>Gracias por confiar en nosotros.</p>
+    <p>Puede revisar su factura en el menú <strong>Mis compras</strong>.</p>
+
+    <br>
+    <a href="{% url 'ver_facturas' request.user.perfilusuario.rut %}">
+      <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px;">
+        Ir a Mis Facturas
+      </button>
+    </a>
+  </div>
+{% endblock %}
+

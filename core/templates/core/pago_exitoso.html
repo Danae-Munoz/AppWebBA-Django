@@ -7,24 +7,29 @@
 
 {% block content %}
     {% if response_code == 0 %}
-        <h1>¡El Pago fue Realizado con Exito!</h1>
+        <h1>¡El Pago fue Realizado con Éxito!</h1>
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-6 borde_formulario text-center">
-                    {% csrf_token %}
 
                     Número de Orden de Compra: {{ buy_order }}<br><br>
-                    Nombre cliente: {{ first_name }} {{ last_name }}<br><br>
+                    Nombre del Cliente: {{ first_name }} {{ last_name }}<br><br>
                     RUT: {{ rut }}<br><br>
                     Dirección: {{ dirusu }}<br><br>
-                    Correo electrónico: {{ email }}<br><br>
-                    Monto a Pagar: {{ amount }}<br><br>
+                    Correo Electrónico: {{ email }}<br><br>
+
+                    <hr>
+                    <h5>Detalle del Pago</h5>
+                    <p><strong>Precio del Producto:</strong> ${{ precio_producto }}</p>
+                    <p><strong>Servicio de Instalación:</strong> ${{ precio_instalacion }}</p>
+                    <p><strong>Total Pagado:</strong> <span style="font-size: 18px;">${{ amount }}</span></p>
+                    <hr>
 
                     <a href="{% url 'tienda' %}" class="btn btn-info btn-sm">Ir a la tienda</a>
                 </div>
             </div>
         </div>
     {% else %}
-        <h1>¡El Pago no Pudo ser Realizado con Exito!<br>Por Favor Intente Nuevamente Más Tarde...</h1>
+        <h1>¡El Pago no pudo ser realizado con éxito!<br>Por favor, intente nuevamente más tarde...</h1>
     {% endif %}
 {% endblock content %}
