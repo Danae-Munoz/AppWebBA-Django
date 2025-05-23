@@ -1,75 +1,41 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
+{% load humanize %}
+
 {% block content %}
+<h1 class="mb-4">Listado de facturas{% if es_admin %} (Administración){% endif %}</h1>
 
-<h2 style="text-align:center;">
-  {% if es_admin %}
-    Historial de Ventas de la Empresa (Vista del Administrador)
-  {% else %}
-    Mis Compras (Vista del Cliente)
-  {% endif %}
-</h2>
-
-<table border="1" style="width: 100%; text-align: center; border-collapse: collapse; margin-top: 20px;">
-    <thead style="background-color: #f2f2f2;">
+<table class="table table-striped">
+    <thead>
         <tr>
-            <th>Nro Fac</th>
-            <th>Cliente</th>
+            <th>N° Factura</th>
+            <th>Cliente (RUT)</th>
             <th>Fecha</th>
             <th>Descripción</th>
             <th>Monto</th>
-            <th>Nro GD</th>
+            <th>ID Prod.</th>
+            <th>Guía despacho</th>
             <th>Estado GD</th>
-            <th>Nro SS</th>
-            <th>Estado SS</th>
         </tr>
     </thead>
     <tbody>
-        {% for fac in facturas %}
-            <tr>
-                <td>{{ fac.0 }}</td> <!-- nrofac -->
-                <td>{{ fac.1 }}</td> <!-- rutcli -->
-                <td>{{ fac.2 }}</td> <!-- fecha -->
-                <td>{{ fac.3 }}</td> <!-- descripción -->
-                <td>${{ fac.4 }}</td> <!-- monto -->
-
-                {# Guía de Despacho #}
-                {% with "No aplica" as nro_gd %}
-                {% with "No aplica" as estado_gd %}
-                {% for guia in guias %}
-                    {% if guia.1 == fac.0 and guia.2 == fac.5 %}
-                        {% with guia.0 as nro_gd %}
-                        {% with guia.3 as estado_gd %}
-                        {% break %}
-                        {% endwith %}
-                        {% endwith %}
-                    {% endif %}
-                {% endfor %}
-                <td>{{ nro_gd }}</td>
-                <td>{{ estado_gd }}</td>
-                {% endwith %}
-                {% endwith %}
-
-                {# Solicitud de Servicio #}
-                {% with "No aplica" as nro_ss %}
-                {% with "No aplica" as estado_ss %}
-                {% for ss in solicitudes %}
-                    {% if ss.1 == fac.0 %}
-                        {% with ss.0 as nro_ss %}
-                        {% with ss.2 as estado_ss %}
-                        {% break %}
-                        {% endwith %}
-                        {% endwith %}
-                    {% endif %}
-                {% endfor %}
-                <td>{{ nro_ss }}</td>
-                <td>{{ estado_ss }}</td>
-                {% endwith %}
-                {% endwith %}
-            </tr>
+        {% for f in facturas %}
+        <tr>
+            <td>{{ f.nrofac }}</td>
+            <td>{{ f.rutcli }}</td>
+            <td>{{ f.fechafac|date:"d‑m‑Y" }}</td>
+            <td>{{ f.descfac }}</td>
+            <td>${{ f.monto|intcomma }}</td>
+            <td>{{ f.idprod }}</td>
+            {% if f.guia %}
+                <td>{{ f.guia.nrogd }}</td>
+                <td>{{ f.guia.estadogd }}</td>
+            {% else %}
+                <td colspan="2" class="text-muted">—</td>
+            {% endif %}
+        </tr>
         {% empty %}
-            <tr><td colspan="9">No hay facturas disponibles.</td></tr>
+        <tr><td colspan="8" class="text-center">No hay facturas para mostrar.</td></tr>
         {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}

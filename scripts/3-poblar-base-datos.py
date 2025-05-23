@@ -203,21 +203,34 @@ END
 
 SP_OBTENER_FACTURAS="""
 CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_FACTURAS]
-    @rutcli VARCHAR(20)
+    @rutcli VARCHAR(20),
+    @tipousu VARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF @rutcli = 'admin'
+    IF @tipousu IN ('Administrador', 'Superusuario')
     BEGIN
-        SELECT f.nrofac, f.rutcli, f.fechafac, f.descfac, f.monto, f.idprod
-        FROM Factura f
+        SELECT
+            f.nrofac,
+            f.rutcli,
+            CONVERT(date, f.fechafac) AS fechafac,
+            f.descfac,
+            f.monto,
+            f.idprod
+        FROM dbo.Factura AS f
         ORDER BY f.fechafac DESC;
     END
     ELSE
     BEGIN
-        SELECT f.nrofac, f.rutcli, f.fechafac, f.descfac, f.monto, f.idprod
-        FROM Factura f
+        SELECT
+            f.nrofac,
+            f.rutcli,
+            CONVERT(date, f.fechafac) AS fechafac,
+            f.descfac,
+            f.monto,
+            f.idprod
+        FROM dbo.Factura AS f
         WHERE f.rutcli = @rutcli
         ORDER BY f.fechafac DESC;
     END
@@ -225,19 +238,21 @@ END;
 """
 
 SP_OBTENER_GUIAS_DE_DESPACHO="""
-CREATE OR ALTER PROCEDURE SP_OBTENER_GUIAS_DE_DESPACHO
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_GUIAS_DE_DESPACHO]
 AS
 BEGIN
-    SELECT 
+    SET NOCOUNT ON;
+
+    SELECT
         gd.nrogd,
         gd.nrofac,
         gd.idprod,
         gd.estadogd,
         f.rutcli
-    FROM 
-        GuiaDespacho gd
-    INNER JOIN Factura f ON gd.nrofac = f.nrofac
-END
+    FROM dbo.GuiaDespacho AS gd
+    INNER JOIN dbo.Factura AS f
+           ON f.nrofac = gd.nrofac;      -- si también quieres filtrar por idprod, elimina INNER JOIN y usa ON (… AND gd.idprod=f.idprod)
+END;
 """
 
 def exec_sql(query):

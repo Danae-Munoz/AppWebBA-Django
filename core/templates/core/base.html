@@ -82,24 +82,35 @@
                                 <span>Solicitudes</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'ingresar_solicitud_servicio' %}">
-                                <i class="fas fa-file-alt"></i> Nueva Solicitud
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'ver_facturas' user.perfilusuario.rut %}">
-                                <i class="fas fa-receipt"></i> Mis Facturas
-                            </a>
-                        </li>
-                        {% if user.perfilusuario.tipousu == "Administrador" %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'ver_facturas' 'admin' %}">
-                                <i class="fas fa-clipboard-list"></i> Ver Ventas
-                            </a>
-                        </li>
+                        {% if user.is_authenticated and user.perfilusuario.tipousu == "Cliente" %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'ingresar_solicitud_servicio' %}">
+                                    <i class="fas fa-file-alt"></i> Nueva Solicitud
+                                </a>
+                            </li>
                         {% endif %}
+
+                        {% if user.is_authenticated %}
+                            {% with user.perfilusuario.tipousu as tipo %}
+                                {% if tipo == "Cliente" %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'facturas' user.perfilusuario.rut %}">
+                                            <i class="fas fa-receipt"></i> Mis Facturas
+                                        </a>
+                                    </li>
+                                {% elif tipo == "Administrador" or tipo == "Superusuario" %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'facturas' user.perfilusuario.rut %}">
+                                            <i class="fas fa-receipt"></i> Ver Ventas
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endwith %}
                         {% endif %}
+
+                        
+                        {% endif %}
+                       
 
                         {% if not user.is_authenticated %}
                         <li class="nav-item">

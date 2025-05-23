@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
+from django.http import Http404
 from .models import Producto, PerfilUsuario
 from urllib.parse import urlencode
 from .forms import ProductoForm, IniciarSesionForm
@@ -467,23 +468,46 @@ def retorno_pago_servicio(request):
         return redirect('home')
 
 @login_required
-def ver_facturas(request, rut):
-    with connection.cursor() as cursor:
-        cursor.execute("EXEC SP_OBTENER_FACTURAS %s", [rut])
-        facturas = cursor.fetchall()
+def facturas_view (request, rut):
+    """
+    Vista para mostrar facturas según tipo de usuario:
+    - Cliente: solo sus facturas (rutcli = su RUT).
+    - Administrador: todas las facturas (ignora el RUT).
+    """
+    try:
+        usuario = PerfilUsuario.objects.get(user=request.user)
+    except PerfilUsuario.DoesNotExist:
+        raise Http404("Perfil de usuario no encontrado.")
 
-        cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
-        guias = cursor.fetchall()
+    es_admin = usuario.tipousu == "Administrador"
 
-        cursor.execute("""
-            SELECT s.nrosol, s.nrofac, s.estadosol
-            FROM SolicitudServicio s
-        """)
-        solicitudes = cursor.fetchall()
+    # Seguridad: un cliente no puede ver facturas de otro cliente
+    if not es_admin and rut != usuario.rut:
+        raise Http404("No puedes ver facturas de otro usuario.")
 
-    return render(request, 'core/facturas.html', {
+    # Ejecutar SP con 2 parámetros: rut y tipousu
+    with connection.cursor() as cur:
+        cur.execute("EXEC SP_OBTENER_FACTURAS %s, %s", [usuario.rut, usuario.tipousu])
+        columns = [col[0] for col in cur.description]
+        facturas = [dict(zip(columns, row)) for row in cur.fetchall()]
+
+    # Ejecutar SP para obtener guías de despacho
+    with connection.cursor() as cur:
+        cur.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
+        columns = [col[0] for col in cur.description]
+        guias = {
+            (row[columns.index("nrofac")], row[columns.index("idprod")]):
+            dict(zip(columns, row))
+            for row in cur.fetchall()
+        }
+
+    # Asociar guía (si existe) a cada factura
+    for f in facturas:
+        f["guia"] = guias.get((f["nrofac"], f["idprod"]))
+
+    context = {
         "facturas": facturas,
-        "guias": guias,
-        "solicitudes": solicitudes,
-        "es_admin": rut == "admin"
-    })
+        "es_admin": es_admin,
+    }
+
+    return render(request, "core/facturas.html", context)
