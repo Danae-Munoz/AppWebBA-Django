@@ -13,33 +13,39 @@
         <!-- Título condicional -->
         <h2 class="section-title">
             {% if estado %}
+            <span class="section-preheading">Nuevo Servicio</span>
                 Ingresar una Solicitud de Servicio
             {% else %}
-                Confirmar Solicitud de Servicio
+            <span class="section-preheading">Nuevo Servicio</span>
+                Revisa la información de tu solicitud
             {% endif %}
         </h2>
 
         <form method="GET" action="{{ url_tbk }}">
             <input type="hidden" name="token_ws" value="{{ token_ws }}">
 
-            <div class="form-group">
+            <div class="form-group horizontal">
                 <label>Precio de la visita:</label>
                 <input type="text" class="form-control" name="precio" value="${{ precio }}" disabled>
             </div>
 
-            <div class="form-group">
+            <div class="form-group horizontal">
                 <label>Tipo de solicitud:</label>
                 <input type="text" class="form-control" name="tipo" value="{{ tipo }}" disabled>
             </div>
 
-            <div class="form-group">
+            <div class="form-group horizontal">
                 <label>Descripción:</label>
                 <textarea class="form-control textarea" name="descripcion" rows="4" disabled>{{ descripcion }}</textarea>
             </div>
 
-            <div class="form-group">
+            <div class="form-group horizontal">
                 <label>Fecha de la visita:</label>
                 <input type="text" class="form-control" name="fecha" value="{{ fecha }}" disabled>
+            </div>
+            <div class="form-group horizontal">
+                <label>Hora de la visita:</label>
+                <input type="text" class="form-control" name="hora" value="{{ hora }}" disabled>
             </div>
 
             {% if not estado %}

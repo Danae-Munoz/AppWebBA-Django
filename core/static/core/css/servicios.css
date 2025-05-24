@@ -260,3 +260,27 @@
 .error h3 {
     color: var(--error-color);
 }
+.form-group.horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.form-group.horizontal label {
+    flex: 0 0 200px;
+    margin-bottom: 0; /* quitar margen por defecto */
+    text-align: right;
+}
+
+.form-group.horizontal .form-control {
+    flex: 1;
+}
+.section-title {
+    font-size: 2rem;
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-align: center; /* <--- Esto centra el texto */
+}

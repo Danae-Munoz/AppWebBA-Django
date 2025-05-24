@@ -323,10 +323,11 @@ def ingresar_solicitud_servicio(request):
                 'tipo': request.POST.get('tipo'),
                 'descripcion': request.POST.get('descripcion'),
                 'fecha': request.POST.get('fecha'),
+                'hora': request.POST.get('hora'),  # ⬅️ Nuevo campo
                 'precio': 25000
             }
             request.session['solicitud_data'] = data
-            return redirect('iniciar_pago_servicio')  # Aquí se redirige solo cuando ya se guardó bien
+            return redirect('iniciar_pago_servicio')  # Redirige solo cuando se guarda bien
         else:
             return render(request, "core/ingresar_solicitud_servicio.html", {
                 "mesg": "¡Debe iniciar sesión como cliente!"
@@ -344,7 +345,6 @@ def iniciar_pago_servicio(request):
             "mensaje": "No hay datos de solicitud en sesión."
         })
 
-    # Leer estado de pago si viene de retorno_pago_servicio
     estado = request.session.pop('pago_estado', None)
 
     print("Webpay Plus Transaction.create")
@@ -378,6 +378,7 @@ def iniciar_pago_servicio(request):
         "tipo": data['tipo'],
         "descripcion": data['descripcion'],
         "fecha": data['fecha'],
+        "hora": data['hora'],  # ⬅️ Nuevo campo
         "precio": data['precio'],
         "estado": estado['estado'] if estado else None,
         "mensaje": estado['mensaje'] if estado else None
@@ -397,7 +398,6 @@ def retorno_pago_servicio(request):
         response = tx.commit(token=token)
         print("response: {}".format(response))
 
-        # ❗ Validar estado del pago
         if response['status'] != 'AUTHORIZED':
             request.session['pago_estado'] = {
                 'estado': 'error',
@@ -443,11 +443,12 @@ def retorno_pago_servicio(request):
 
                 ruttec = random.choice(tecnicos)[0]
 
-                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s", [
+                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s, %s", [
                     nrofac,
                     tiposol,
                     data['descripcion'],
                     data['fecha'],
+                    data['hora'],  # ⬅️ Nuevo parámetro
                     ruttec,
                     idprod
                 ])
