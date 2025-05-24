@@ -12,7 +12,7 @@ from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
 from django.db import connection
 import random
-from datetime import date
+from datetime import date, datetime
 import requests
 
 def home(request):
@@ -167,6 +167,7 @@ def pago_exitoso(request):
 
             producto = Producto.objects.get(idprod=idprod_comprado)
             fecha_actual = date.today()
+            hora_actual = None
 
             with connection.cursor() as cursor:
                 # Crear factura de compra
@@ -196,11 +197,12 @@ def pago_exitoso(request):
                 ruttec = random.choice(tecnicos)[0]
 
                 # Crear solicitud de instalación
-                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s", [
+                cursor.execute("EXEC SP_CREAR_SOLICITUD_SERVICIO %s, %s, %s, %s, %s, %s, %s", [
                     nrofac_instalacion,
                     "Instalación",
-                    "Instalación de equipo nuevo comprado por el cliente.",
+                    "Instalación de equipo nuevo.",
                     fecha_actual,
+                    hora_actual,  # ⬅️ Agregado correctamente
                     ruttec,
                     10
                 ])

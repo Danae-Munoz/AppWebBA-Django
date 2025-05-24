@@ -1,35 +1,383 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block stylesheet %}
     <link href="{% static 'core/css/iniciar_sesion.css'%}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Sistema de diseño profesional */
+            --color-primary: #2563eb;
+            --color-primary-dark: #1d4ed8;
+            --color-secondary: #f59e0b;
+            --color-dark: #1e293b;
+            --color-text: #334155;
+            --color-light: #f8fafc;
+            --color-border: #e2e8f0;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --color-background: #ffffff;
+            --color-success-bg: rgba(16, 185, 129, 0.1);
+            
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            --border-radius-sm: 0.375rem;
+            --border-radius-md: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Estructura principal */
+        .confirmation-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+            font-family: 'Open Sans', sans-serif;
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        /* Tarjeta de confirmación */
+        .confirmation-card {
+            background: var(--color-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-xl);
+            margin: 0 auto;
+            overflow: hidden;
+            transition: var(--transition);
+            border: 1px solid var(--color-border);
+        }
+
+        /* Encabezado */
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .confirmation-title {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-dark);
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: var(--spacing-md);
+            position: relative;
+            display: inline-block;
+        }
+
+        .confirmation-title.success:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--color-success);
+            border-radius: 2px;
+        }
+
+        .confirmation-title.error:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--color-error);
+            border-radius: 2px;
+        }
+
+        /* Icono de estado */
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-success);
+        }
+
+        .status-icon.error {
+            color: var(--color-error);
+        }
+
+        /* Secciones */
+        .confirmation-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--color-dark);
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .section-title i {
+            color: var(--color-primary);
+        }
+
+        /* Información del cliente */
+        .customer-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .info-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .info-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-primary);
+        }
+
+        .info-value {
+            font-size: 1rem;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px dashed var(--color-border);
+        }
+
+        /* Detalles de pago */
+        .payment-details {
+            background: rgba(249, 250, 251, 0.5);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        .total-amount {
+            font-size: 1.25rem;
+            color: var(--color-success);
+            font-weight: 700;
+        }
+
+        /* Acciones */
+        .confirmation-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: var(--spacing-xl);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.75rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            gap: var(--spacing-sm);
+            border: none;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-success {
+            background-color: var(--color-success);
+            color: white;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+        }
+
+        .btn-success:hover {
+            background-color: #0d9f74;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Mensaje de error */
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--color-error);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-md);
+            margin-top: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .error-message i {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-md);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .confirmation-card {
+                padding: var(--spacing-lg);
+            }
+            
+            .confirmation-title {
+                font-size: 1.5rem;
+            }
+            
+            .customer-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .confirmation-container {
+                padding: var(--spacing-md);
+            }
+            
+            .confirmation-card {
+                padding: var(--spacing-md);
+            }
+            
+            .confirmation-title {
+                font-size: 1.25rem;
+            }
+            
+            .status-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    {% if response_code == 0 %}
-        <h1>¡El Pago fue Realizado con Éxito!</h1>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-6 borde_formulario text-center">
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        {% if response_code == 0 %}
+            <header class="confirmation-header">
+                <i class="fas fa-check-circle status-icon"></i>
+                <h1 class="confirmation-title success">¡Pago Realizado con Éxito!</h1>
+                <p>Gracias por su compra. Hemos recibido su pago correctamente.</p>
+            </header>
 
-                    Número de Orden de Compra: {{ buy_order }}<br><br>
-                    Nombre del Cliente: {{ first_name }} {{ last_name }}<br><br>
-                    RUT: {{ rut }}<br><br>
-                    Dirección: {{ dirusu }}<br><br>
-                    Correo Electrónico: {{ email }}<br><br>
+            <section class="confirmation-section">
+                <h2 class="section-title"><i class="fas fa-user-circle"></i> Información del Cliente</h2>
+                
+                <div class="customer-info">
+                    <div class="info-group">
+                        <span class="info-label">Orden de Compra</span>
+                        <p class="info-value">{{ buy_order }}</p>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Nombre Completo</span>
+                        <p class="info-value">{{ first_name }} {{ last_name }}</p>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">RUT</span>
+                        <p class="info-value">{{ rut }}</p>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Dirección</span>
+                        <p class="info-value">{{ dirusu }}</p>
+                    </div>
+                    
+                    <div class="info-group">
+                        <span class="info-label">Correo Electrónico</span>
+                        <p class="info-value">{{ email }}</p>
+                    </div>
+                </div>
+            </section>
 
-                    <hr>
-                    <h5>Detalle del Pago</h5>
-                    <p><strong>Precio del Producto:</strong> ${{ precio_producto }}</p>
-                    <p><strong>Servicio de Instalación:</strong> ${{ precio_instalacion }}</p>
-                    <p><strong>Total Pagado:</strong> <span style="font-size: 18px;">${{ amount }}</span></p>
-                    <hr>
+            <section class="confirmation-section">
+                <h2 class="section-title"><i class="fas fa-receipt"></i> Detalles del Pago</h2>
+                
+                <div class="payment-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Producto:</span>
+                        <span class="detail-value">${{ precio_producto|intcomma }}</span>
+                    </div>
+                    
+                    <div class="detail-row">
+                        <span class="detail-label">Servicio de Instalación:</span>
+                        <span class="detail-value">${{ precio_instalacion|intcomma }}</span>
+                    </div>
+                    
+                    <div class="detail-row" style="margin-top: var(--spacing-lg);">
+                        <span class="detail-label" style="font-size: 1.125rem;">Total Pagado:</span>
+                        <span class="detail-value total-amount">${{ amount|intcomma }}</span>
+                    </div>
+                </div>
+            </section>
 
-                    <a href="{% url 'tienda' %}" class="btn btn-info btn-sm">Ir a la tienda</a>
+            <div class="confirmation-actions">
+                <a href="{% url 'tienda' %}" class="btn btn-success">
+                    <i class="fas fa-store"></i> Volver a la Tienda
+                </a>
+            </div>
+        {% else %}
+            <header class="confirmation-header">
+                <i class="fas fa-exclamation-circle status-icon error"></i>
+                <h1 class="confirmation-title error">¡Error en el Pago!</h1>
+                <p>No hemos podido procesar su pago correctamente.</p>
+            </header>
+
+            <div class="error-message">
+                <h3>Por favor, intente nuevamente más tarde...</h3>
+                <p>Si el problema persiste, contacte a nuestro servicio de atención al cliente.</p>
+                
+                <div class="confirmation-actions" style="margin-top: var(--spacing-lg);">
+                    <a href="{% url 'tienda' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Volver a la Tienda
+                    </a>
                 </div>
             </div>
-        </div>
-    {% else %}
-        <h1>¡El Pago no pudo ser realizado con éxito!<br>Por favor, intente nuevamente más tarde...</h1>
-    {% endif %}
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}

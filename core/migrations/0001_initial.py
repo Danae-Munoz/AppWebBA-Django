@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('tiposol', models.CharField(choices=[('Instalación', 'Instalación'), ('Mantención', 'Mantención'), ('Reparación', 'Reparación')], max_length=50)),
                 ('idprod', models.ForeignKey(db_column='idprod', on_delete=django.db.models.deletion.DO_NOTHING, to='core.producto')),
                 ('fechavisita', models.DateField()),
-                ('horavisita', models.TimeField()),
+                ('horavisita', models.TimeField(null=True, blank=True)),  # ✅ Ahora puede ser NULL
                 ('descsol', models.CharField(max_length=200)),
                 ('estadosol', models.CharField(choices=[('Aceptada', 'Aceptada'), ('Modificada', 'Modificada'), ('Cerrada', 'Cerrada'), ('Anulada', 'Anulada')], max_length=50)),
                 ('nrofac', models.ForeignKey(db_column='nrofac', on_delete=django.db.models.deletion.DO_NOTHING, to='core.factura')),

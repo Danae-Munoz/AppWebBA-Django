@@ -74,6 +74,7 @@ class SolicitudServicio(models.Model):
     tiposol = models.CharField(choices=TIPOSOL_CHOICES, max_length=50, null=False, blank=False)
     idprod = models.ForeignKey(Producto, models.DO_NOTHING, db_column='idprod', null=False, blank=False)
     fechavisita = models.DateField(null=False, blank=False)
+    horavisita = models.TimeField(null=True, blank=True)
     ruttec = models.ForeignKey(PerfilUsuario, models.DO_NOTHING, db_column='ruttec', null=False, blank=False)
     descsol = models.CharField(max_length=200, null=False, blank=False)
     estadosol = models.CharField(choices=ESTADOSOL_CHOICES, max_length=50, null=False, blank=False)
