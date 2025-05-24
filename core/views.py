@@ -471,7 +471,7 @@ def retorno_pago_servicio(request):
         return redirect('home')
 
 @login_required
-def facturas_view (request, rut):
+def facturas_view(request, rut):
     """
     Vista para mostrar facturas según tipo de usuario:
     - Cliente: solo sus facturas (rutcli = su RUT).
@@ -484,12 +484,10 @@ def facturas_view (request, rut):
 
     es_admin = usuario.tipousu in ["Administrador", "Vendedor"] or request.user.is_superuser
 
-
-    # Seguridad: un cliente no puede ver facturas de otro cliente
     if not es_admin and rut != usuario.rut:
         raise Http404("No puedes ver facturas de otro usuario.")
 
-    # Ejecutar SP con 2 parámetros: rut y tipousu
+    # Ejecutar SP para obtener facturas
     with connection.cursor() as cur:
         cur.execute("EXEC SP_OBTENER_FACTURAS %s, %s", [usuario.rut, usuario.tipousu])
         columns = [col[0] for col in cur.description]
@@ -505,13 +503,20 @@ def facturas_view (request, rut):
             for row in cur.fetchall()
         }
 
-    # Asociar guía (si existe) a cada factura
+    # Obtener solicitudes de servicio directamente
+    with connection.cursor() as cur:
+        cur.execute("SELECT nrofac, nrosol, estadosol FROM SolicitudServicio")
+        ss_data = {
+            row[0]: {"nrosol": row[1], "estadosol": row[2]}
+            for row in cur.fetchall()
+        }
+
+    # Asociar datos extra a cada factura
     for f in facturas:
         f["guia"] = guias.get((f["nrofac"], f["idprod"]))
+        f["ss"] = ss_data.get(f["nrofac"])
 
-    context = {
+    return render(request, "core/facturas.html", {
         "facturas": facturas,
         "es_admin": es_admin,
-    }
-
-    return render(request, "core/facturas.html", context)
+    })
