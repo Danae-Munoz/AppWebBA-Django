@@ -55,7 +55,7 @@
             <i class="fas fa-check-circle"></i>
             <h3>{{ mensaje }}</h3>
             <p>Gracias por confiar en nosotros.</p>
-            <a href="{% url 'ver_facturas' rut %}" class="btn btn-primary">Ir a Mis Facturas</a>
+            <a href="{% url 'facturas' rut %}" class="btn btn-primary">Ir a Mis Facturas</a>
         </div>
         {% elif estado == "error" %}
         <div class="result-message error">

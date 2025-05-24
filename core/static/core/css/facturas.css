@@ -1,0 +1,85 @@
+:root {
+            --primary-color: #0066cc;
+            --primary-dark: #004d99;
+            --secondary-color: #ff7b00;
+            --dark-color: #1a2b4a;
+            --text-color: #4a5568;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 14px 16px;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .table tbody td {
+            padding: 12px 16px;
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(0, 102, 204, 0.03);
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: var(--light-color);
+        }
+        
+        .text-muted {
+            color: #a0aec0 !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .badge-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .amount {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .admin-label {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
