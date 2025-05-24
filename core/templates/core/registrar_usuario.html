@@ -6,7 +6,71 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        
+        .form-registration-form {
+    width: 100%;
+    max-width: 900px; /* ancho más amplio */
+    background-color: var(--form-white);
+    padding: 2.5rem;
+    border-radius: var(--form-border-radius);
+    box-shadow: var(--form-box-shadow);
+}
+
+.form-registration-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.form-registration-group label {
+    flex: 0 0 250px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--form-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-registration-group input,
+.form-registration-group select,
+.form-registration-group textarea {
+    flex: 1 1 auto;
+    min-width: 250px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--form-border-radius-sm);
+    background-color: var(--form-white);
+    transition: var(--form-transition);
+}
+
+.form-registration-group input:focus,
+.form-registration-group select:focus,
+.form-registration-group textarea:focus {
+    border-color: var(--form-primary);
+    box-shadow: 0 0 0 3px var(--form-primary-light);
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .form-registration-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-registration-group label {
+        flex: 1 1 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-registration-group input,
+    .form-registration-group select,
+    .form-registration-group textarea {
+        flex: 1 1 100%;
+    }
+}
+
     </style>
     {% endblock %}
 
@@ -16,11 +80,11 @@
         <div class="form-registration-header">
             <h1 class="form-registration-title">Crear Cuenta</h1>
         </div>
-        
+
         <div class="form-registration-form">
             <form method="POST" class="needs-validation" novalidate>
                 {% csrf_token %}
-                
+
                 {% if form.non_field_errors %}
                     <div class="form-alert-danger">
                         <i class="fas fa-exclamation-circle"></i>
@@ -29,41 +93,83 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                
-                {% for field in form %}
-                    <div class="form-registration-group">
-                        <label for="{{ field.id_for_label }}">
-                            {{ field.label }}
-                            {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
-                        </label>
-                        
-                        {{ field }}
-                        
-                        {% if field.help_text %}
-                            <small class="form-helptext">{{ field.help_text }}</small>
-                        {% endif %}
-                        
-                        {% for error in field.errors %}
-                            <div class="form-errorlist">
-                                <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-                
+
+                {# ORDEN PERSONALIZADO SEGÚN LA MAQUETA #}
+                <div class="form-registration-group">
+                    <label for="{{ form.rut.id_for_label }}">RUT</label>
+                    {{ form.rut }}
+                    {% for error in form.rut.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+                    {{ form.first_name }}
+                    {% for error in form.first_name.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+                    {{ form.last_name }}
+                    {% for error in form.last_name.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.email.id_for_label }}">Correo</label>
+                    {{ form.email }}
+                    {% for error in form.email.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.direccion.id_for_label }}">Dirección</label>
+                    {{ form.direccion }}
+                    {% for error in form.direccion.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+                    {{ form.password1 }}
+                    {% if form.password1.help_text %}
+                        <small class="form-helptext">{{ form.password1.help_text|safe }}</small>
+                    {% endif %}
+                    {% for error in form.password1.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-registration-group">
+                    <label for="{{ form.password2.id_for_label }}">Repetir contraseña</label>
+                    {{ form.password2 }}
+                    {% if form.password2.help_text %}
+                        <small class="form-helptext">{{ form.password2.help_text }}</small>
+                    {% endif %}
+                    {% for error in form.password2.errors %}
+                        <div class="form-errorlist">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
                 <div class="form-registration-group">
                     <button type="submit" class="form-btn form-btn-primary form-btn-block">
                         <i class="fas fa-user-plus mr-2"></i> Registrarse
                     </button>
                 </div>
-                
+
                 {% if mesg %}
                     <div class="form-alert-danger">
                         <i class="fas fa-exclamation-circle"></i> {{ mesg }}
                     </div>
                 {% endif %}
             </form>
-            
+
             <div class="text-center mt-4 pt-3 border-top">
                 <p class="text-muted">¿Ya tienes una cuenta? <a href="{% url 'iniciar_sesion' %}" class="font-weight-bold text-primary">Iniciar Sesión</a></p>
             </div>

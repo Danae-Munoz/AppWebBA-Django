@@ -16,13 +16,24 @@ class IniciarSesionForm(Form):
         fields = ['username', 'password']
 
 class RegistrarUsuarioForm(UserCreationForm):
-    rut = forms.CharField(max_length=20, required=True, label="Rut")
-    tipousu = forms.CharField(max_length=50, required=True, label="Tipo de usuario", initial='admin')
+    rut = forms.CharField(max_length=20, required=True, label="RUT")
     dirusu = forms.CharField(max_length=300, required=True, label="Dirección")
+
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'tipousu', 'rut', 'dirusu']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'rut', 'dirusu']
 
+    def save(self, commit=True):
+        user = super().save(commit=False)  # solo guarda el User, no aún en la DB
+        if commit:
+            user.save()
+            PerfilUsuario.objects.create(
+                user=user,
+                rut=self.cleaned_data['rut'],
+                dirusu=self.cleaned_data['dirusu'],
+                tipousu='Cliente'  # o según tu lógica
+            )
+        return user
 class PerfilUsuarioForm(Form):
     first_name = forms.CharField(max_length=150, required=True, label="Nombres")
     last_name = forms.CharField(max_length=150, required=True, label="Apellidos")

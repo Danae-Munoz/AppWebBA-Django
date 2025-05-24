@@ -520,3 +520,18 @@ def facturas_view(request, rut):
         "facturas": facturas,
         "es_admin": es_admin,
     })
+
+def registrar_usuario(request):
+    mesg = None
+    if request.method == 'POST':
+        form = RegistrarUsuarioForm(request.POST)
+        if form.is_valid():
+            form.save()  # 👈 IMPORTANTE: si no haces esto, no se guarda el User
+            mesg = "Usuario registrado correctamente."
+            form = RegistrarUsuarioForm()  # limpiar formulario
+        else:
+            mesg = "Corrige los errores."
+    else:
+        form = RegistrarUsuarioForm()
+
+    return render(request, 'core/registrar_usuario.html', {'form': form, 'mesg': mesg})
