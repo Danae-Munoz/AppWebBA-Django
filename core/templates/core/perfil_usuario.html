@@ -2,22 +2,254 @@
 {% load static %}
 
 {% block stylesheet %}
-    <link href="{% static 'core/css/perfil_usuario.css'%}" rel="stylesheet">
+<link href="{% static 'core/css/perfil_usuario.css' %}" rel="stylesheet">
+<style>
+    :root {
+        --primary-blue: #1a4b8c;
+        --secondary-blue: #2c6cb0;
+        --light-blue: #e6f0fa;
+        --accent-orange: #e67e22;
+        --white: #ffffff;
+    }
+    
+    /* Contenedor principal */
+    .profile-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 15px;
+    }
+    
+    /* Título */
+    .profile-title {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--primary-blue);
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        position: relative;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+    }
+
+    .profile-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--accent-orange);
+        border-radius: 2px;
+    }
+    
+    /* Formulario */
+    .profile-form {
+        background-color: var(--white);
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Estilo para filas de formulario */
+    .form-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        color: var(--primary-blue);
+        font-weight: 500;
+        width: 180px;
+        min-width: 180px;
+        margin-right: 20px;
+        text-align: right;
+    }
+    
+    .form-field {
+        flex: 1;
+    }
+    
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px 15px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--secondary-blue);
+        box-shadow: 0 0 0 0.2rem rgba(44, 108, 176, 0.2);
+    }
+    
+    /* Grupos de input para contraseñas */
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+    
+    .input-group .form-control {
+        flex: 1;
+    }
+    
+    /* Botones */
+    .form-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+        padding: 8px 25px;
+        font-weight: 500;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--secondary-blue);
+        border-color: var(--secondary-blue);
+    }
+    
+    .btn-secondary {
+        padding: 8px 25px;
+        font-weight: 500;
+    }
+    
+    /* Botón mostrar contraseña */
+    .toggle-password {
+        border: 1px solid #ced4da;
+        border-left: none;
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    
+    .toggle-password:hover {
+        background-color: #e9ecef;
+        color: var(--accent-orange);
+    }
+    
+    /* Mensajes de ayuda */
+    .form-text {
+        display: block;
+        margin-top: 5px;
+        margin-left: 200px;
+        color: #6c757d;
+        font-size: 0.875em;
+    }
+    
+    /* Alertas */
+    .profile-alert {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+        margin-top: 20px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .form-label {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 8px;
+            margin-right: 0;
+        }
+        
+        .form-text {
+            margin-left: 0;
+        }
+        
+        .profile-form {
+            padding: 20px;
+        }
+    }
+    
+</style>
 {% endblock %}
 
 {% block content %}
-    <div class="container text-center">
-        <h1>Actualizar Perfil de Usuario</h1>
-        <div class="content container text-center">
-            <form method="POST" class="col-sm-12 col-md-6">
-                {% csrf_token %} {{ form.as_p }}
-                <div class="btn_guardar">
-                    <button class="btn btn-primary" type="submit">Actualizar datos de perfil</button>
+<div class="profile-container">
+    <h1 class="profile-title">Actualizar Perfil de Usuario</h1>
+    <div class="d-flex justify-content-center">
+        <form method="POST" class="profile-form col-sm-12 col-md-10">
+            {% csrf_token %}
+
+            <!-- RUT -->
+            <div class="form-row">
+                <label for="id_rut" class="form-label">RUT:</label>
+                <div class="form-field">
+                    {{ form.rut }}
+                    <small class="form-text">Ejemplo: 12345678-9</small>
                 </div>
-                {% if mesg %}
-                <div id="form_message" class="alert alert-danger" role="alert">{{ mesg }}</div>
-                {% endif %}
-            </form>
-        </div>
+            </div>
+
+            <!-- Nombres -->
+            <div class="form-row">
+                <label for="id_first_name" class="form-label">Nombres:</label>
+                <div class="form-field">
+                    {{ form.first_name }}
+                </div>
+            </div>
+
+            <!-- Apellidos -->
+            <div class="form-row">
+                <label for="id_last_name" class="form-label">Apellidos:</label>
+                <div class="form-field">
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="form-row">
+                <label for="id_email" class="form-label">Correo electrónico:</label>
+                <div class="form-field">
+                    {{ form.email }}
+                </div>
+            </div>
+
+            <!-- Dirección -->
+            <div class="form-row">
+                <label for="id_dirusu" class="form-label">Dirección:</label>
+                <div class="form-field">
+                    {{ form.dirusu }}
+                </div>
+            </div>
+
+    
+
+            <!-- Botones -->
+            <div class="form-buttons">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-save me-2"></i>Guardar
+                </button>
+                <button class="btn btn-secondary" type="reset">
+                    <i class="fas fa-eraser me-2"></i>Limpiar
+                </button>
+            </div>
+
+            {% if mesg %}
+                <div id="form_message" class="profile-alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ mesg }}
+                </div>
+            {% endif %}
+        </form>
     </div>
-{% endblock content %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

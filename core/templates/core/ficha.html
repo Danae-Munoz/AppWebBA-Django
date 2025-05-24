@@ -1,49 +1,323 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block stylesheet %}
-    <link href="{% static 'core/css/forms.css'%}" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        /* Sistema de diseño profesional */
+        --color-primary: #2563eb;  /* Azul principal */
+        --color-primary-dark: #1d4ed8;
+        --color-secondary: #f97316;  /* Naranjo (usado con moderación) */
+        --color-light: #ffffff;
+        --color-dark: #1e293b;
+        --color-text: #334155;
+        --color-border: #e2e8f0;
+        --color-error: #ef4444;
+        --color-background: #f8fafc;
+        --color-highlight: #ff0000;
+
+        /* Espaciado */
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+
+        /* Bordes */
+        --border-radius-sm: 0.375rem;
+        --border-radius-md: 0.5rem;
+        --border-radius-lg: 0.75rem;
+
+        /* Sombras */
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+        /* Transiciones */
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Estilos generales */
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background-color: var(--color-background);
+        color: var(--color-text);
+        line-height: 1.6;
+    }
+
+    /* Contenedor principal */
+    .product-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--spacing-xl);
+    }
+
+    /* Encabezado */
+    .product-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .product-title {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--color-primary);
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-md);
+        position: relative;
+        display: inline-block;
+    }
+
+    .product-title:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background: var(--color-secondary);
+        border-radius: 2px;
+    }
+
+    /* Tarjeta de producto */
+    .product-card {
+        display: flex;
+        flex-wrap: wrap;
+        background: var(--color-light);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Imagen del producto */
+    .product-image-container {
+        flex: 1 1 50%;
+        min-width: 300px;
+        padding: var(--spacing-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-light);
+    }
+
+    .product-image {
+    width: 600px;       /* Ancho fijo grande */
+    height: 300px;      /* Alto fijo */
+    object-fit: cover;  /* Cubre el espacio manteniendo proporciones */
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+}
+    /* Detalles del producto */
+    .product-details {
+        flex: 1 1 50%;
+        min-width: 300px;
+        padding: var(--spacing-xl);
+        background: var(--color-light);
+    }
+
+    .product-name {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--color-dark);
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .product-id {
+        font-size: 0.875rem;
+        color: var(--color-text);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .product-description {
+        margin-bottom: var(--spacing-lg);
+        line-height: 1.7;
+    }
+
+    /* Precios */
+    .price-container {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .price-label {
+        font-weight: 600;
+        color: var(--color-dark);
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .price-clp {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .price-usd {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text);
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-md);
+        background: rgba(249, 250, 251, 0.5);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .price-highlight {
+        color: var(--color-highlight);
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    /* Formulario de compra */
+    .purchase-form {
+        margin-top: var(--spacing-xl);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.75rem;
+        border-radius: var(--border-radius-md);
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        border: none;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: var(--color-light);
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-info {
+        background-color: var(--color-secondary);
+        color: var(--color-light);
+    }
+
+    .btn-info:hover {
+        background-color: #ea580c;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px rgba(249, 115, 22, 0.1);
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    /* Mensajes */
+    .alert {
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-sm);
+        margin-top: var(--spacing-md);
+    }
+
+    .alert-danger {
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--color-error);
+    }
+
+    /* Navegación */
+    .product-nav {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-md);
+        margin-top: var(--spacing-xl);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .product-container {
+            padding: var(--spacing-md);
+        }
+        
+        .product-image-container,
+        .product-details {
+            padding: var(--spacing-lg);
+        }
+        
+        .product-title {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .product-title {
+            font-size: 1.75rem;
+        }
+        
+        .product-name {
+            font-size: 1.5rem;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-    <h1 style="color: blue !important; font-weight: bolder;">Aires Acondicionados Buenos Aires</h1>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="mx-auto col-sm-12 col-md-6 col-lg-6 col-xl-6 ficha_auto_recuadro">
-                <img src="/media/{{ producto.imagen }}" class="ficha_auto_imagen" alt="">
+<div class="product-container">
+    <header class="product-header">
+        <h1 class="product-title">Aires Acondicionados Buenos Aires</h1>
+    </header>
+
+    <div class="product-card">
+        <div class="product-image-container">
+            <img src="/media/{{ producto.imagen }}" class="product-image" alt="{{ producto.nomprod }}">
+        </div>
+        
+        <div class="product-details">
+            <h2 class="product-name">{{ producto.nomprod }}</h2>
+            <div class="product-id">ID: {{ producto.idprod }}</div>
+            <p class="product-description">{{ producto.descprod }}</p>
+            
+            <div class="price-container">
+                <div class="price-label">Precio CLP:</div>
+                <div class="price-clp">${{ producto.precio|intcomma }}</div>
+                
+                <div class="price-usd">
+                    <div class="price-label">Precio USD:</div>
+                    <div class="price-highlight">
+                        [>>CONVERSIÓN A DÓLARES<<]
+                        <br><small>(Usando API bancaria)</small>
+                    </div>
+                </div>
             </div>
-            <div class="mx-auto col-sm-12 col-md-6 col-lg-6 col-xl-6 ficha_datos_recuadro">
-                <h2>
-                    Producto: {{ producto.nomprod }}<br><br>
-                </h1>
-                <h4>
-                    ID: {{ producto.idprod }} Descripción: {{ producto.descprod }}
-                </h4>
-                <br>
-                <h4>
-                    Precio CLP: <br>${{ producto.precio }}
-                </h4>
-                <br>
-                <h4>
-                    Precio USD: <br>
-                    <span style="color: red; font-weight: bolder; font-size: 40px;">
-                    [>>PONER AQUI EL PRECIO DEL PRODUCTO <br>
-                    CONVERTIDO A DOLARES DE EEUU <br>
-                    USANDO UNA API BANCARIA<<]
-                    </span>
-                </h4>
-                <br>
-                <form method="POST">
-                    <input type="submit" class="btn btn-primary" value="Comprar">
-                    {% if mesg %}
-                        <div id="form_message" class="alert alert-danger" role="alert">{{ mesg }}</div>
-                    {% endif %}
-                </form>
-            </div>
+            
+            <form method="POST" class="purchase-form">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart"></i> Comprar Ahora
+                </button>
+                
+                {% if mesg %}
+                <div id="form_message" class="alert alert-danger" role="alert">{{ mesg }}</div>
+                {% endif %}
+            </form>
         </div>
     </div>
-    <div style="margin-top: 20px; text-align: center;">
-        <a href="{% url 'tienda' %}" class="btn btn-info btn-sm">Ir a la tienda</a>&nbsp;&nbsp;&nbsp;
-        <a href="{% url 'home' %}" class="btn btn-info btn-sm">Ir a la página de inicio</a>
+    
+    <div class="product-nav">
+        <a href="{% url 'tienda' %}" class="btn btn-info btn-sm">
+            <i class="fas fa-store"></i> Volver a la Tienda
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-info btn-sm">
+            <i class="fas fa-home"></i> Página de Inicio
+        </a>
     </div>
+</div>
 {% endblock content %}
