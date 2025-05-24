@@ -10,7 +10,7 @@ class ProductoForm(ModelForm):
         fields = ['idprod', 'nomprod', 'descprod', 'precio', 'imagen']
 
 class IniciarSesionForm(Form):
-    username = forms.CharField(widget=forms.TextInput(), label="Correo")
+    username = forms.CharField(widget=forms.TextInput(), label="Cuenta")
     password = forms.CharField(widget=forms.PasswordInput(), label="Contraseña")
     class Meta:
         fields = ['username', 'password']
