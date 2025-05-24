@@ -3,9 +3,6 @@
 {% load static %}
 
 {% block stylesheet %}
-    <link href="{% static 'core/css/forms.css' %}" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -31,9 +28,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ producto.nomprod }}</h5>
                                 <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
-                                <div class="mt-auto">
-                                    <span class="badge bg-primary">Disponible</span>
-                                </div>
+                               
                             </div>
                         </a>
                     </div>
