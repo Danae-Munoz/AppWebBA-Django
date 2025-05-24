@@ -482,7 +482,8 @@ def facturas_view (request, rut):
     except PerfilUsuario.DoesNotExist:
         raise Http404("Perfil de usuario no encontrado.")
 
-    es_admin = usuario.tipousu == "Administrador"
+    es_admin = usuario.tipousu in ["Administrador", "Vendedor"] or request.user.is_superuser
+
 
     # Seguridad: un cliente no puede ver facturas de otro cliente
     if not es_admin and rut != usuario.rut:

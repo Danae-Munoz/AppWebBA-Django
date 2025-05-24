@@ -27,127 +27,142 @@
     {% block stylesheet %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <!-- Navbar -->
+    <!--Navbar-->
     {% block navbar %}
     <header class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
+                <!-- Logo -->
                 <a class="navbar-brand" href="{% url 'home' %}">
                     <i class="fas fa-snowflake"></i>
                     <span class="brand-name">BuenosAires</span>
                     <span class="brand-slogan">Climatización Profesional</span>
                 </a>
-                
+
+                <!-- Botón para móvil -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                
+
+                <!-- Menú -->
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav ms-auto">
+                        <!-- Inicio -->
                         <li class="nav-item">
                             <a href="{% url 'home' %}" class="nav-link">
-                                <i class="fas fa-home"></i>
-                                <span>Inicio</span>
+                                <i class="fas fa-home"></i> Inicio
                             </a>
                         </li>
+
+                        <!-- Tienda -->
                         <li class="nav-item">
                             <a href="{% url 'tienda' %}" class="nav-link">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Tienda</span>
+                                <i class="fas fa-shopping-cart"></i> Tienda
                             </a>
                         </li>
-
-                        {% if user.is_authenticated and user.is_superuser %}
-                        <li class="nav-item">
-                            <a href="{% url 'admin:index' %}" class="nav-link">
-                                <i class="fas fa-cog"></i>
-                                <span>Administrar</span>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        {% if user.is_authenticated and user.is_staff %}
-                        <li class="nav-item">
-                            <a href="{% url 'administrar_productos' 'ins' '-1' %}" class="nav-link">
-                                <i class="fas fa-boxes"></i>
-                                <span>Productos</span>
-                            </a>
-                        </li>
-                        {% endif %}
 
                         {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a href="{% url 'obtener_solicitudes_de_servicio' %}" class="nav-link">
-                                <i class="fas fa-tools"></i>
-                                <span>Solicitudes</span>
-                            </a>
-                        </li>
-                        {% if user.is_authenticated and user.perfilusuario.tipousu == "Cliente" %}
+                            <!-- Menú "Otros" -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-tools me-1"></i> Otros
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+
+                                    {% if user.is_superuser %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                                <i class="fas fa-cog me-2"></i> Administrar
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if user.is_staff %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'administrar_productos' 'ins' '-1' %}">
+                                                <i class="fas fa-boxes me-2"></i> Productos
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'obtener_solicitudes_de_servicio' %}">
+                                            <i class="fas fa-folder-open me-2"></i> Mis Solicitudes
+                                        </a>
+                                    </li>
+
+                                    {% if user.perfilusuario.tipousu == "Cliente" %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'ingresar_solicitud_servicio' %}">
+                                                <i class="fas fa-file-alt me-2"></i> Nueva Solicitud
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'facturas' user.perfilusuario.rut %}">
+                                                <i class="fas fa-credit-card me-2"></i> Mis Compras
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if user.perfilusuario.tipousu == "Administrador" or user.perfilusuario.tipousu == "Vendedor" or user.is_superuser %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'facturas' user.perfilusuario.rut %}">
+                                                <i class="fas fa-chart-line me-2"></i> Ver Ventas
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+
+                            <!-- Menú de usuario -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle"></i>
+                                    {{ user.get_short_name|default:user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'perfil_usuario' %}">
+                                            <i class="fas fa-user me-2"></i> Perfil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'cambiar_password' %}">
+                                            <i class="fas fa-key me-2"></i> Cambiar Contraseña
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'cerrar_sesion' %}">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        {% else %}
+                            <!-- Registro / Ingreso -->
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'ingresar_solicitud_servicio' %}">
-                                    <i class="fas fa-file-alt"></i> Nueva Solicitud
+                                <a href="{% url 'registrar_usuario' %}" class="nav-link">
+                                    <i class="fas fa-user-plus"></i> Registrarme
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'iniciar_sesion' %}" class="nav-link">
+                                    <i class="fas fa-sign-in-alt"></i> Ingresar
                                 </a>
                             </li>
                         {% endif %}
-
-                        {% if user.is_authenticated %}
-                            {% with user.perfilusuario.tipousu as tipo %}
-                                {% if tipo == "Cliente" %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'facturas' user.perfilusuario.rut %}">
-                                            <i class="fas fa-receipt"></i> Mis Facturas
-                                        </a>
-                                    </li>
-                                {% elif tipo == "Administrador" or tipo == "Superusuario" %}
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{% url 'facturas' user.perfilusuario.rut %}">
-                                            <i class="fas fa-receipt"></i> Ver Ventas
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            {% endwith %}
-                        {% endif %}
-
-                        
-                        {% endif %}
-                       
-
-                        {% if not user.is_authenticated %}
-                        <li class="nav-item">
-                            <a href="{% url 'registrar_usuario' %}" class="nav-link">
-                                <i class="fas fa-user-plus"></i>
-                                <span>Registrarme</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{% url 'iniciar_sesion' %}" class="nav-link">
-                                <i class="fas fa-sign-in-alt"></i>
-                                <span>Ingresar</span>
-                            </a>
-                        </li>
-                        {% endif %}
-
-                        {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i>
-                                <span>{{ user.get_short_name|default:user.username }}</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'perfil_usuario' %}"><i class="fas fa-user me-2"></i>Perfil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'cambiar_password' %}"><i class="fas fa-key me-2"></i>Cambiar Contraseña</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'cerrar_sesion' %}"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
-                            </ul>
-                        </li>
-                        {% endif %}
                     </ul>
                 </div>
-
             </div>
         </nav>
     </header>
     {% endblock %}
+
+
+
+
 
     <!-- Main Content -->
     <main class="flex-grow-1">

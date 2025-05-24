@@ -106,12 +106,14 @@
 <div class="container-fluid py-4">
     <div class="title-container">
         <h1>
-            {% if request.user.is_staff and request.user.is_superuser %}
-                Historial de ventas de la empresa
-                
-            {% else %}
-                Mis compras
-            {% endif %}
+            {% with tipo=request.user.perfilusuario.tipousu|lower %}
+                {% if tipo == "administrador" or tipo == "vendedor" or request.user.is_superuser %}
+                    Historial de ventas de la empresa
+                {% else %}
+                    Mis compras
+                {% endif %}
+            {% endwith %}
+
         </h1>
     </div>
 

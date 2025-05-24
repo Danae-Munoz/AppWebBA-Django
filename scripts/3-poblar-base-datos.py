@@ -210,7 +210,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF @tipousu IN ('Administrador', 'Superusuario')
+    IF @tipousu IN ('Administrador', 'Superusuario', 'Vendedor')
     BEGIN
         SELECT
             f.nrofac,
