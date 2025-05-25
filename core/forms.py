@@ -27,12 +27,14 @@ class RegistrarUsuarioForm(UserCreationForm):
         user = super().save(commit=False)
         if commit:
             user.save()
+            print("Usuario base guardado correctamente:", user.username)
             PerfilUsuario.objects.create(
                 user=user,
                 rut=self.cleaned_data['rut'],
                 dirusu=self.cleaned_data['dirusu'],
-                tipousu='Cliente'  # Asignación por defecto
+                tipousu='Cliente'
             )
+            print("Perfil creado correctamente para:", user.username)
         return user
 class PerfilUsuarioForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, required=True, label="Nombres")
@@ -41,4 +43,4 @@ class PerfilUsuarioForm(forms.ModelForm):
 
     class Meta:
         model = PerfilUsuario
-        fields = ['rut', 'tipousu', 'dirusu']
+        fields = ['rut', 'dirusu']  # ¡tipousu eliminado!

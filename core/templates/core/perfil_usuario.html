@@ -7,19 +7,16 @@
     :root {
         --primary-blue: #1a4b8c;
         --secondary-blue: #2c6cb0;
-        --light-blue: #e6f0fa;
         --accent-orange: #e67e22;
         --white: #ffffff;
     }
-    
-    /* Contenedor principal */
+
     .profile-container {
         max-width: 800px;
         margin: 40px auto;
         padding: 0 15px;
     }
-    
-    /* Título */
+
     .profile-title {
         font-family: 'Montserrat', sans-serif;
         color: var(--primary-blue);
@@ -27,9 +24,7 @@
         font-size: 2.5rem;
         margin-bottom: 30px;
         position: relative;
-        display: inline-block;
         text-align: center;
-        width: 100%;
     }
 
     .profile-title:after {
@@ -43,22 +38,20 @@
         background: var(--accent-orange);
         border-radius: 2px;
     }
-    
-    /* Formulario */
+
     .profile-form {
         background-color: var(--white);
         padding: 30px;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    
-    /* Estilo para filas de formulario */
+
     .form-row {
         display: flex;
         align-items: center;
         margin-bottom: 20px;
     }
-    
+
     .form-label {
         color: var(--primary-blue);
         font-weight: 500;
@@ -67,11 +60,11 @@
         margin-right: 20px;
         text-align: right;
     }
-    
+
     .form-field {
         flex: 1;
     }
-    
+
     .form-control {
         border: 1px solid #ced4da;
         border-radius: 4px;
@@ -79,62 +72,37 @@
         width: 100%;
         transition: all 0.3s ease;
     }
-    
+
     .form-control:focus {
         border-color: var(--secondary-blue);
         box-shadow: 0 0 0 0.2rem rgba(44, 108, 176, 0.2);
     }
-    
-    /* Grupos de input para contraseñas */
-    .input-group {
-        display: flex;
-        align-items: center;
-    }
-    
-    .input-group .form-control {
-        flex: 1;
-    }
-    
-    /* Botones */
+
     .form-buttons {
         display: flex;
         justify-content: center;
         gap: 15px;
         margin-top: 30px;
     }
-    
+
     .btn-primary {
         background-color: var(--primary-blue);
         border-color: var(--primary-blue);
+        color: #fff;
         padding: 8px 25px;
         font-weight: 500;
     }
-    
+
     .btn-primary:hover {
         background-color: var(--secondary-blue);
         border-color: var(--secondary-blue);
     }
-    
+
     .btn-secondary {
         padding: 8px 25px;
         font-weight: 500;
     }
-    
-    /* Botón mostrar contraseña */
-    .toggle-password {
-        border: 1px solid #ced4da;
-        border-left: none;
-        background-color: #f8f9fa;
-        padding: 10px 15px;
-        cursor: pointer;
-    }
-    
-    .toggle-password:hover {
-        background-color: #e9ecef;
-        color: var(--accent-orange);
-    }
-    
-    /* Mensajes de ayuda */
+
     .form-text {
         display: block;
         margin-top: 5px;
@@ -142,41 +110,46 @@
         color: #6c757d;
         font-size: 0.875em;
     }
-    
-    /* Alertas */
+
     .profile-alert {
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-        color: #721c24;
         margin-top: 20px;
         text-align: center;
         padding: 10px;
         border-radius: 4px;
     }
-    
-    /* Responsive */
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
     @media (max-width: 768px) {
         .form-row {
             flex-direction: column;
             align-items: flex-start;
         }
-        
+
         .form-label {
             width: 100%;
             text-align: left;
             margin-bottom: 8px;
-            margin-right: 0;
         }
-        
+
         .form-text {
             margin-left: 0;
         }
-        
+
         .profile-form {
             padding: 20px;
         }
     }
-    
 </style>
 {% endblock %}
 
@@ -187,7 +160,6 @@
         <form method="POST" class="profile-form col-sm-12 col-md-10">
             {% csrf_token %}
 
-            <!-- RUT -->
             <div class="form-row">
                 <label for="id_rut" class="form-label">RUT:</label>
                 <div class="form-field">
@@ -196,7 +168,6 @@
                 </div>
             </div>
 
-            <!-- Nombres -->
             <div class="form-row">
                 <label for="id_first_name" class="form-label">Nombres:</label>
                 <div class="form-field">
@@ -204,7 +175,6 @@
                 </div>
             </div>
 
-            <!-- Apellidos -->
             <div class="form-row">
                 <label for="id_last_name" class="form-label">Apellidos:</label>
                 <div class="form-field">
@@ -212,7 +182,6 @@
                 </div>
             </div>
 
-            <!-- Correo -->
             <div class="form-row">
                 <label for="id_email" class="form-label">Correo electrónico:</label>
                 <div class="form-field">
@@ -220,7 +189,7 @@
                 </div>
             </div>
 
-            <!-- Dirección -->
+
             <div class="form-row">
                 <label for="id_dirusu" class="form-label">Dirección:</label>
                 <div class="form-field">
@@ -228,9 +197,6 @@
                 </div>
             </div>
 
-    
-
-            <!-- Botones -->
             <div class="form-buttons">
                 <button class="btn btn-primary" type="submit">
                     <i class="fas fa-save me-2"></i>Guardar
@@ -241,8 +207,8 @@
             </div>
 
             {% if mesg %}
-                <div id="form_message" class="profile-alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>{{ mesg }}
+                <div id="form_message" class="profile-alert {% if 'correctamente' in mesg %}alert-success{% else %}alert-error{% endif %}">
+                    <i class="fas fa-info-circle me-2"></i>{{ mesg }}
                 </div>
             {% endif %}
         </form>
@@ -252,16 +218,14 @@
 
 {% block scripts %}
 <script>
-    document.querySelector('.btn-secondary[type="reset"]').addEventListener('click', function(e) {
-        e.preventDefault();  // Previene el comportamiento por defecto
+    document.querySelector('.btn-secondary[type="reset"]').addEventListener('click', function (e) {
+        e.preventDefault();
         const form = this.closest('form');
 
-        // Limpia todos los inputs de texto, email, password y textarea
-        form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], textarea').forEach(input => {
+        form.querySelectorAll('input[type="text"], input[type="email"], textarea').forEach(input => {
             input.value = '';
         });
 
-        // También limpia select si es necesario
         form.querySelectorAll('select').forEach(select => {
             select.selectedIndex = 0;
         });

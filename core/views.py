@@ -270,44 +270,57 @@ def administrar_productos(request, action, id):
     return render(request, "core/administrar_productos.html", data)
 
 def registrar_usuario(request):
+    mesg = None
     if request.method == 'POST':
         form = RegistrarUsuarioForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            rut = request.POST.get("rut")
-            tipousu = request.POST.get("tipousu")
-            dirusu = request.POST.get("dirusu")
-            PerfilUsuario.objects.update_or_create(user=user, rut=rut, tipousu=tipousu, dirusu=dirusu)
-            return redirect(iniciar_sesion)
-    form = RegistrarUsuarioForm()
-    return render(request, "core/registrar_usuario.html", context={'form': form})
+            try:
+                user = form.save()
+                mesg = "Usuario registrado correctamente."
+                print("✔ Registro exitoso:", user.username)
+                form = RegistrarUsuarioForm()
+            except Exception as e:
+                mesg = "Error al registrar usuario."
+                print("❌ Error al guardar usuario:", str(e))
+        else:
+            mesg = "Corrige los errores del formulario."
+            print("❌ Errores de formulario:", form.errors.as_json())
+    else:
+        form = RegistrarUsuarioForm()
 
+    return render(request, 'core/registrar_usuario.html', {'form': form, 'mesg': mesg})
+
+
+@login_required
 def perfil_usuario(request):
-    data = {"mesg": "", "form": PerfilUsuarioForm}
+    user = request.user
+    perfil = PerfilUsuario.objects.get(user=user)
+    data = {"mesg": "", "form": None}
 
     if request.method == 'POST':
-        form = PerfilUsuarioForm(request.POST)
+        form = PerfilUsuarioForm(request.POST, instance=perfil)
         if form.is_valid():
-            user = request.user
-            user.first_name = request.POST.get("first_name")
-            user.last_name = request.POST.get("last_name")
-            user.email = request.POST.get("email")
+            # Actualizar campos del modelo User
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
             user.save()
-            perfil = PerfilUsuario.objects.get(user=user)
-            perfil.rut = request.POST.get("rut")
-            perfil.tipousu = request.POST.get("tipousu")
-            perfil.dirusu = request.POST.get("dirusu")
-            perfil.save()
-            data["mesg"] = "¡Sus datos fueron actualizados correctamente!"
 
-    perfil = PerfilUsuario.objects.get(user=request.user)
-    form = PerfilUsuarioForm()
-    form.fields['first_name'].initial = request.user.first_name
-    form.fields['last_name'].initial = request.user.last_name
-    form.fields['email'].initial = request.user.email
-    form.fields['rut'].initial = perfil.rut
-    form.fields['tipousu'].initial = perfil.tipousu
-    form.fields['dirusu'].initial = perfil.dirusu
+            # Actualizar campos del modelo PerfilUsuario
+            form.save()
+
+            data["mesg"] = "¡Sus datos fueron actualizados correctamente!"
+        else:
+            data["mesg"] = "Corrige los errores del formulario."
+    else:
+        # Precargar los datos actuales
+        initial = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+        }
+        form = PerfilUsuarioForm(instance=perfil, initial=initial)
+
     data["form"] = form
     return render(request, "core/perfil_usuario.html", data)
 
@@ -520,18 +533,3 @@ def facturas_view(request, rut):
         "facturas": facturas,
         "es_admin": es_admin,
     })
-
-def registrar_usuario(request):
-    mesg = None
-    if request.method == 'POST':
-        form = RegistrarUsuarioForm(request.POST)
-        if form.is_valid():
-            form.save()  # 👈 IMPORTANTE: si no haces esto, no se guarda el User
-            mesg = "Usuario registrado correctamente."
-            form = RegistrarUsuarioForm()  # limpiar formulario
-        else:
-            mesg = "Corrige los errores."
-    else:
-        form = RegistrarUsuarioForm()
-
-    return render(request, 'core/registrar_usuario.html', {'form': form, 'mesg': mesg})
