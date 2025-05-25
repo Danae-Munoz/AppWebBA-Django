@@ -24,23 +24,21 @@ class RegistrarUsuarioForm(UserCreationForm):
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'rut', 'dirusu']
 
     def save(self, commit=True):
-        user = super().save(commit=False)  # solo guarda el User, no aún en la DB
+        user = super().save(commit=False)
         if commit:
             user.save()
             PerfilUsuario.objects.create(
                 user=user,
                 rut=self.cleaned_data['rut'],
                 dirusu=self.cleaned_data['dirusu'],
-                tipousu='Cliente'  # o según tu lógica
+                tipousu='Cliente'  # Asignación por defecto
             )
         return user
-class PerfilUsuarioForm(Form):
+class PerfilUsuarioForm(forms.ModelForm):
     first_name = forms.CharField(max_length=150, required=True, label="Nombres")
     last_name = forms.CharField(max_length=150, required=True, label="Apellidos")
-    email = forms.CharField(max_length=254, required=True, label="Correo")
-    rut = forms.CharField(max_length=20, required=False, label="Rut")
-    tipousu = forms.CharField(max_length=50, required=True, label="Tipo de usuario")
-    dirusu = forms.CharField(max_length=300, required=False, label="Dirección")
+    email = forms.EmailField(max_length=254, required=True, label="Correo")
 
     class Meta:
-        fields = '__all__'
+        model = PerfilUsuario
+        fields = ['rut', 'tipousu', 'dirusu']

@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.urls import reverse_lazy
+from django.contrib import messages
 
 class PerfilUsuario(models.Model):
     TIPOUSU_CHOICES = [
@@ -139,3 +143,9 @@ class AnwoStockProducto(models.Model):
         
     def __str__(self):
         return f'{self.nroserieanwo} - {self.nomprodanwo}'
+    
+# Nuevo
+class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
+    template_name = 'core/cambiar_password.html'
+    success_url = reverse_lazy('cambiar_password')  # vuelve a sí misma
+    success_message = "¡Tu contraseña ha sido cambiada con éxito!"

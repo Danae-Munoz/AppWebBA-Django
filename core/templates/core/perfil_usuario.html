@@ -251,5 +251,20 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    document.querySelector('.btn-secondary[type="reset"]').addEventListener('click', function(e) {
+        e.preventDefault();  // Previene el comportamiento por defecto
+        const form = this.closest('form');
 
+        // Limpia todos los inputs de texto, email, password y textarea
+        form.querySelectorAll('input[type="text"], input[type="email"], input[type="password"], textarea').forEach(input => {
+            input.value = '';
+        });
+
+        // También limpia select si es necesario
+        form.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
+        });
+    });
+</script>
 {% endblock %}

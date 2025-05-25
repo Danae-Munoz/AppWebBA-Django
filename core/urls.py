@@ -4,10 +4,11 @@ from django.contrib.auth import views as auth_views
 from .views import home, administrar_productos, tienda, ficha, iniciar_pago_servicio,retorno_pago_servicio 
 from .views import iniciar_sesion, registrar_usuario, cerrar_sesion, ingresar_solicitud_servicio, facturas_view
 from .views import perfil_usuario, iniciar_pago, pago_exitoso, obtener_solicitudes_de_servicio
+from .models import CustomPasswordChangeView 
 
 urlpatterns = [
     path('administrar_productos/<action>/<id>', administrar_productos, name="administrar_productos"),
-    path('cambiar_password/', auth_views.PasswordChangeView.as_view(template_name='core/cambiar_password.html', success_url='/password_cambiada'), name='cambiar_password'),
+    path('cambiar_password/', CustomPasswordChangeView.as_view(), name='cambiar_password'),
     path('ficha/<id>', ficha, name="ficha"),
     path('', home, name="home"),
     path('iniciar_pago/<id>', iniciar_pago, name="iniciar_pago"),
