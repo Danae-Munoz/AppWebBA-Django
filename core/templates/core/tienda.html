@@ -68,6 +68,10 @@
             font-size: 1.5rem;
         }
     }
+    .badge-agotado {
+    background-color: var(--color-error) !important;
+    color: white !important;
+}
 </style>
 {% endblock %}
 
@@ -92,9 +96,19 @@
                         <a href="{% url 'ficha' producto.idprod %}" class="text-decoration-none">
                             <img src="/media/{{ producto.imagen }}" class="card-img-top tienda-card-img" alt="{{ producto.nomprod }}">
                             <div class="card-body">
+                                <div class="mt-auto">
+                                    {% if producto.disponibilidad|lower == "agotado" %}
+                                        <span class="badge badge-agotado">Producto {{ producto.disponibilidad }}</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Producto {{ producto.disponibilidad }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <br>
                                 <h5 class="card-title">{{ producto.nomprod }}</h5>
-                                <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
                                
+                                <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
+                                
                             </div>
                         </a>
                     </div>

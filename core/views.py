@@ -12,8 +12,12 @@ from .forms import RegistrarUsuarioForm, PerfilUsuarioForm
 from transbank.webpay.webpay_plus.transaction import Transaction, WebpayOptions
 from django.db import connection
 import random
+from apirest.views import obtener_valor_dolar_observado
 from datetime import date, datetime
 import requests
+from rest_framework.decorators import api_view
+from django.http import JsonResponse
+
 
 def home(request):
     return render(request, "core/home.html")
@@ -47,8 +51,11 @@ def cerrar_sesion(request):
     return redirect(home)
 
 def tienda(request):
-    productos = Producto.objects.exclude(idprod__in=[9, 10, 11]).order_by('idprod')
-    data = {"list": productos}
+    response = requests.get('http://127.0.0.1:8001/BuenosAiresApiRest/obtener_equipos_en_bodega')
+    if response.status_code == 200:
+        data = {"list": response.json()}
+    else:
+        data = {"list": []}
     return render(request, "core/tienda.html", data)
 
 # https://www.transbankdevelopers.cl/documentacion/como_empezar#como-empezar
@@ -73,28 +80,28 @@ def tienda(request):
 
 @csrf_exempt
 def ficha(request, id):
-    data = {"mesg": "", "producto": None}
+    data = {"mesg": "", "producto": None, "precio_dolares": None}
 
-    # Cuando el usuario hace clic en el boton COMPRAR, se ejecuta el METODO POST del
-    # formulario de ficha.html, con lo cual se redirecciona la página para que
-    # llegue a esta VISTA llamada "FICHA". A continuacion se verifica que sea un POST 
-    # y se valida que se trate de un usuario autenticado que no sea de estaff, 
-    # es decir, se comprueba que la compra sea realizada por un CLIENTE REGISTRADO.
-    # Si se tata de un CLIENTE REGISTRADO, se redirecciona a la vista "iniciar_pago"
+    # Si el método es POST y el usuario es un cliente registrado (no staff), redirige a iniciar_pago
     if request.method == "POST":
         if request.user.is_authenticated and not request.user.is_staff:
             return redirect(iniciar_pago, id)
         else:
-            # Si el usuario que hace la compra no ha iniciado sesión,
-            # entonces se le envía un mensaje en la pagina para indicarle
-            # que primero debe iniciar sesion antes de comprar
             data["mesg"] = "¡Para poder comprar debe iniciar sesión como cliente!"
 
-    # Si visitamos la URL de FICHA y la pagina no nos envia un METODO POST, 
-    # quiere decir que solo debemos fabricar la pagina y devolvera al browser
-    # para que se muestren los datos de la FICHA
-    data["producto"] = Producto.objects.get(idprod=id)
+    # Obtener el producto
+    producto = Producto.objects.get(idprod=id)
+    data["producto"] = producto
+
+    # Obtener valor del dólar y calcular precio en USD
+    valor_dolar = obtener_valor_dolar_observado()
+    if valor_dolar:
+        data["precio_dolares"] = round(producto.precio / valor_dolar, 2)
+    else:
+        data["precio_dolares"] = "No disponible"
+
     return render(request, "core/ficha.html", data)
+
 
 @csrf_exempt
 def iniciar_pago(request, id):
@@ -533,3 +540,4 @@ def facturas_view(request, rut):
         "facturas": facturas,
         "es_admin": es_admin,
     })
+

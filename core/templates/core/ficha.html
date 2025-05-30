@@ -282,21 +282,27 @@
         
         <div class="product-details">
             <h2 class="product-name">{{ producto.nomprod }}</h2>
-            <div class="product-id">ID: {{ producto.idprod }}</div>
-            <p class="product-description">{{ producto.descprod }}</p>
+            
             
             <div class="price-container">
-                <div class="price-label">Precio CLP:</div>
-                <div class="price-clp">${{ producto.precio|intcomma }}</div>
-                
-                <div class="price-usd">
-                    <div class="price-label">Precio USD:</div>
-                    <div class="price-highlight">
-                        [>>CONVERSIÓN A DÓLARES<<]
-                        <br><small>(Usando API bancaria)</small>
-                    </div>
-                </div>
+                <h4>
+                    Precio CLP: <br>${{ producto.precio }}
+                </h4>
+                <br>
+               <h4>
+                Precio USD: <br>
+                {% if precio_dolares %}
+                <span >
+                    ${{ precio_dolares }}
+                </span>
+                {% else %}
+                <span style="color: gray;">
+                    No disponible
+                </span>
+                {% endif %}
+    
             </div>
+            <p class="product-description">{{ producto.descprod }}</p>
             
             <form method="POST" class="purchase-form">
                 {% csrf_token %}
@@ -313,10 +319,10 @@
     
     <div class="product-nav">
         <a href="{% url 'tienda' %}" class="btn btn-info btn-sm">
-            <i class="fas fa-store"></i> Volver a la Tienda
+            <i class="fas fa-store"></i>  Volver a la Tienda
         </a>
         <a href="{% url 'home' %}" class="btn btn-info btn-sm">
-            <i class="fas fa-home"></i> Página de Inicio
+            <i class="fas fa-home"></i>  Página de Inicio
         </a>
     </div>
 </div>

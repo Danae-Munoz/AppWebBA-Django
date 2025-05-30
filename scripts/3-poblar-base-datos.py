@@ -1,22 +1,33 @@
 from django.db import connection
 
 SP_OBTENER_EQUIPOS_EN_BODEGA = """
-CREATE PROCEDURE [dbo].[SP_OBTENER_EQUIPOS_EN_BODEGA]
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_EQUIPOS_EN_BODEGA]
 AS
 BEGIN
 	SET NOCOUNT ON;
+SELECT 
+    p.idprod,
+    p.nomprod,
+    p.descprod,
+    p.precio, 
+    p.imagen, 
+    COUNT(s.idprod) AS cantidad, 
+    CASE 
+        WHEN COUNT(s.idprod) = 0 
+        THEN 'AGOTADO' 
+        ELSE 'DISPONIBLE' 
+    END AS disponibilidad
+FROM
+    Producto p
+    LEFT JOIN (SELECT * FROM StockProducto WHERE nrofac IS NULL) s on p.idprod = s.idprod
+GROUP BY
+    p.idprod,
+    p.nomprod,
+    p.descprod,
+    p.precio,
+    p.imagen
+ORDER BY p.idprod
 
-    SELECT
-		s.idstock, p.idprod, p.nomprod, f.nrofac, 
-		CASE 
-			WHEN f.nrofac IS NOT NULL 
-			THEN 'Vendido'
-			ELSE 'En bodega'
-		END AS 'estado'
-	FROM 
-		StockProducto s 
-		INNER JOIN Producto p ON s.idprod = p.idprod
-		LEFT OUTER JOIN Factura  f ON s.nrofac = f.nrofac
 END
 """
 
@@ -348,6 +359,7 @@ def run():
 
     try:
         exec_sql(SP_OBTENER_EQUIPOS_EN_BODEGA)
+        print('SI PASO EL NUEVO')
     except:
         pass
 
