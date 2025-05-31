@@ -185,11 +185,24 @@ def pago_exitoso(request):
                     f"Compra de equipo: {producto.nomprod}",
                     producto.precio
                 ])
+                nrofac_producto = cursor.fetchone()[0]
 
-                # Crear factura de instalación
+                # Insertar guía de despacho si el producto no es un servicio
+                if producto.idprod not in [9, 10, 11]:  # IDs de servicios
+                    # Obtener nuevo número de guía
+                    cursor.execute("SELECT ISNULL(MAX(nrogd), 0) + 1 FROM GuiaDespacho")
+                    nuevo_nrogd = cursor.fetchone()[0]
+
+                    # Insertar guía de despacho con número generado
+                    cursor.execute("""
+                        INSERT INTO GuiaDespacho (nrogd, nrofac, idprod, estadogd)
+                        VALUES (%s, %s, %s, 'EnBodega')
+                    """, [nuevo_nrogd, nrofac_producto, producto.idprod])
+
+                # Crear factura de instalación (servicio)
                 cursor.execute("EXEC SP_CREAR_FACTURA %s, %s, %s, %s, %s", [
                     perfil.rut,
-                    10,  # ID del servicio de instalación
+                    11,  # ID del servicio de instalación
                     fecha_actual,
                     "Instalación de equipo nuevo",
                     25000
@@ -209,9 +222,9 @@ def pago_exitoso(request):
                     "Instalación",
                     "Instalación de equipo nuevo.",
                     fecha_actual,
-                    hora_actual,  # ⬅️ Agregado correctamente
+                    hora_actual,
                     ruttec,
-                    10
+                    11
                 ])
 
         except Exception as e:
@@ -490,6 +503,7 @@ def retorno_pago_servicio(request):
     else:
         return redirect('home')
 
+#listar con los servicios y todo
 @login_required
 def facturas_view(request, rut):
     """
@@ -513,13 +527,12 @@ def facturas_view(request, rut):
         columns = [col[0] for col in cur.description]
         facturas = [dict(zip(columns, row)) for row in cur.fetchall()]
 
-    # Ejecutar SP para obtener guías de despacho
+    # Ejecutar SP para obtener guías de despacho (clave solo por nrofac)
     with connection.cursor() as cur:
         cur.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
         columns = [col[0] for col in cur.description]
         guias = {
-            (row[columns.index("nrofac")], row[columns.index("idprod")]):
-            dict(zip(columns, row))
+            row[columns.index("nrofac")]: dict(zip(columns, row))
             for row in cur.fetchall()
         }
 
@@ -533,11 +546,74 @@ def facturas_view(request, rut):
 
     # Asociar datos extra a cada factura
     for f in facturas:
-        f["guia"] = guias.get((f["nrofac"], f["idprod"]))
+        f["guia"] = guias.get(f["nrofac"])
         f["ss"] = ss_data.get(f["nrofac"])
+
+    # ✅ Ordenar: más recientes primero (por fecha y luego por nrofac)
+    facturas.sort(key=lambda f: (f["fechafac"], f["nrofac"]), reverse=True)
 
     return render(request, "core/facturas.html", {
         "facturas": facturas,
         "es_admin": es_admin,
     })
 
+#listar sin los servicios
+#@login_required
+#def facturas_view(request, rut):
+#    """
+#    Vista para mostrar solo facturas de productos comprados, no servicios.
+#    - Cliente: solo sus facturas (rutcli = su RUT).
+#    - Administrador: todas las facturas (ignora el RUT).
+#    """
+#    try:
+#        usuario = PerfilUsuario.objects.get(user=request.user)
+#    except PerfilUsuario.DoesNotExist:
+#        raise Http404("Perfil de usuario no encontrado.")
+#
+#    es_admin = usuario.tipousu in ["Administrador", "Vendedor"] or request.user.is_superuser
+#
+#    if not es_admin and rut != usuario.rut:
+#        raise Http404("No puedes ver facturas de otro usuario.")
+#
+#    # Ejecutar SP para obtener facturas
+#    with connection.cursor() as cur:
+#        cur.execute("EXEC SP_OBTENER_FACTURAS %s, %s", [usuario.rut, usuario.tipousu])
+#        columns = [col[0] for col in cur.description]
+#        facturas = [dict(zip(columns, row)) for row in cur.fetchall()]
+#
+#    # ❌ FILTRAR: excluir servicios, solo mantener productos
+#    def es_producto(desc):
+#        desc = desc.lower()
+#        return "instalación" not in desc and "mantención" not in desc and "reparación" not in desc
+#
+#    facturas = [f for f in facturas if es_producto(f["descfac"])]
+#
+#    # Obtener guías de despacho (clave solo por nrofac)
+#    with connection.cursor() as cur:
+#        cur.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
+#        columns = [col[0] for col in cur.description]
+#        guias = {
+#            row[columns.index("nrofac")]: dict(zip(columns, row))
+#            for row in cur.fetchall()
+#        }
+#
+#    # Obtener solicitudes de servicio (no se usará si solo listamos productos)
+#    with connection.cursor() as cur:
+#        cur.execute("SELECT nrofac, nrosol, estadosol FROM SolicitudServicio")
+#        ss_data = {
+#            row[0]: {"nrosol": row[1], "estadosol": row[2]}
+#            for row in cur.fetchall()
+#        }
+#
+#    # Asociar datos extra a cada factura
+#    for f in facturas:
+#        f["guia"] = guias.get(f["nrofac"])
+#        f["ss"] = ss_data.get(f["nrofac"])  # Puedes eliminar esto si ya no mostrarás estado SS
+#
+#    # Ordenar: más recientes primero
+#    facturas.sort(key=lambda f: (f["fechafac"], f["nrofac"]), reverse=True)
+#
+#    return render(request, "core/facturas.html", {
+#        "facturas": facturas,
+#        "es_admin": es_admin,
+#    })

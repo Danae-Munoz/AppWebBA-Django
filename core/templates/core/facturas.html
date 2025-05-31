@@ -178,7 +178,30 @@
                     <td>{{ f.descfac }}</td>
                     <td class="amount">${{ f.monto|intcomma }}</td>
                     <td>{{ f.guia.nrogd|default:"No aplica" }}</td>
-                    <td>{{ f.guia.estadogd|default:"No aplica" }}</td>
+                    <td>
+                        {% if f.guia %}
+                            {% if f.guia.estadogd == 'Entregado' %}
+                                <span style="background-color: #38a16920; color: #2f855a; padding: 4px 12px; border-radius: 999px; font-weight: 500; font-size: 0.875rem;">
+                                    {{ f.guia.estadogd }}
+                                </span>
+                            {% elif f.guia.estadogd == 'Despachado' %}
+                                <span style="background-color: #3182ce20; color: #2c5282; padding: 4px 12px; border-radius: 999px; font-weight: 500; font-size: 0.875rem;">
+                                    {{ f.guia.estadogd }}
+                                </span>
+                            {% elif f.guia.estadogd == 'EnBodega' %}
+                                <span style="background-color: #dd6b2020; color: #c05621; padding: 4px 12px; border-radius: 999px; font-weight: 500; font-size: 0.875rem;">
+                                    {{ f.guia.estadogd }}
+                                </span>
+                            {% else %}
+                                <span style="background-color: #e2e8f0; color: #4a5568; padding: 4px 12px; border-radius: 999px; font-weight: 500; font-size: 0.875rem;">
+                                    {{ f.guia.estadogd }}
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">No aplica</span>
+                        {% endif %}
+                    </td>
+
                     <td>{{ f.ss.nrosol|default:"No aplica" }}</td>
                     <td>
                         {% if f.ss %}
