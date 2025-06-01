@@ -16,7 +16,7 @@ def autenticar(request, tipousu, username, password):
         perfil = PerfilUsuario.objects.get(user=user)
         nombre = f'{user.first_name} {user.last_name}'
         tipo = perfil.tipousu
-        if tipo in [tipousu, 'Administrador']:
+        if tipo in [tipousu, 'Administrador', 'Superusuario']:
             return JsonResponse({'Autenticado': True, 'NombreUsuario': nombre, 'TipoUsuario': tipo, 'Mensaje': ''})
         msg = f'La cuenta de usuario {nombre} es del perfil {tipo}, por lo que no puede ingresar al sistema'
     else:

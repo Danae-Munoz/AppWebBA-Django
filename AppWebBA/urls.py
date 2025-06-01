@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('BuenosAiresApiRest/', include('apirest.urls')),
+    path('api/', include('apirest.urls')),  # 👈 ESTO ES CLAVE
 ]
 
 if settings.DEBUG:
