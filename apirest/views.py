@@ -104,4 +104,30 @@ def obtener_productos(request):
             })
 
         return JsonResponse(data, safe=False)
+    
+# Nuevo
+@csrf_exempt
+@api_view(['GET'])
+def consultar_productos_disponibles(request):
+    cursor = connection.cursor()
+    cursor.execute("SELECT nroserieanwo, nomprodanwo, precioanwo, reservado FROM AnwoStockProducto")
+    rows = cursor.fetchall()
+    data = []
+    for row in rows:
+        data.append({
+            'nroserieanwo': row[0],
+            'nomprodanwo': row[1],
+            'precioanwo': row[2],
+            'reservado': row[3]
+        })
+    return JsonResponse(data, safe=False)
 
+@csrf_exempt
+@api_view(['POST'])
+def reservar_producto(request):
+    data = request.data
+    nroserieanwo = data.get('nroserieanwo')
+    reservado = data.get('reservado')
+    cursor = connection.cursor()
+    cursor.execute("EXEC SP_RESERVAR_EQUIPO_ANWO %s, %s", [nroserieanwo, reservado])
+    return JsonResponse({'ok': True})
