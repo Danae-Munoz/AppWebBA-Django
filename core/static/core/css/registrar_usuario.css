@@ -1,0 +1,158 @@
+:root {
+    --form-primary: #2563eb;
+    --form-primary-dark: #1d4ed8;
+    --form-primary-light: #ebf4ff;
+    --form-secondary: #f59e0b;
+    --form-dark: #1e293b;
+    --form-gray: #64748b;
+    --form-light-gray: #f1f5f9;
+    --form-lighter-gray: #f8fafc;
+    --form-white: #ffffff;
+    --form-error: #dc2626;
+    --form-success: #16a34a;
+    --form-border-radius: 12px;
+    --form-border-radius-sm: 8px;
+    --form-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    --form-transition: all 0.3s ease;
+}
+
+.form-page-container {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--form-lighter-gray);
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.form-registration-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.form-registration-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.form-registration-title {
+    font-size: 2.5rem;
+    color: var(--form-primary);
+    font-weight: 700;
+    position: relative;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.form-registration-title::after {
+    content: '';
+    position: absolute;
+    width: 60px;
+    height: 4px;
+    background-color: var(--form-secondary);
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 3px;
+}
+
+.form-registration-form {
+    width: 100%;
+    max-width: 480px;
+    background-color: var(--form-white);
+    padding: 2.5rem;
+    border-radius: var(--form-border-radius);
+    box-shadow: var(--form-box-shadow);
+}
+
+.form-registration-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-registration-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--form-dark);
+}
+
+.form-registration-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--form-border-radius-sm);
+    background-color: var(--form-white);
+    transition: var(--form-transition);
+}
+
+.form-registration-control:focus {
+    border-color: var(--form-primary);
+    box-shadow: 0 0 0 3px var(--form-primary-light);
+    outline: none;
+}
+
+.form-helptext {
+    font-size: 0.85rem;
+    color: var(--form-gray);
+    margin-top: 0.3rem;
+}
+
+.form-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--form-border-radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    transition: var(--form-transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.form-btn-primary {
+    background-color: var(--form-primary);
+    color: var(--form-white);
+}
+
+.form-btn-primary:hover {
+    background-color: var(--form-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.form-btn-block {
+    width: 100%;
+}
+
+.form-alert-danger {
+    background-color: #fee2e2;
+    color: var(--form-error);
+    border: 1px solid #fecaca;
+    padding: 1rem;
+    border-radius: var(--form-border-radius-sm);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-errorlist {
+    color: var(--form-error);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 0;
+    list-style-type: none;
+}
+
+@media (max-width: 576px) {
+    .form-registration-form {
+        padding: 1.5rem;
+    }
+
+    .form-registration-title {
+        font-size: 2rem;
+    }
+}

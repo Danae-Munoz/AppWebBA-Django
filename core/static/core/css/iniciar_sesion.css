@@ -1,0 +1,208 @@
+:root {
+    --primary-color: #4361ee;
+    --primary-dark: #3a56d4;
+    --primary-light: #ebf4ff;
+    --secondary-color: #f8961e;
+    --dark-color: #1e293b;
+    --gray-color: #64748b;
+    --light-gray: #f1f5f9;
+    --lighter-gray: #f8fafc;
+    --white-color: #ffffff;
+    --error-color: #ef4444;
+    --success-color: #10b981;
+    --border-radius: 0.5rem;
+    --border-radius-sm: 0.375rem;
+    --box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --transition: all 0.2s ease-in-out;
+}
+
+/* Estructura base */
+.login-page-container {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--lighter-gray);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background-image: linear-gradient(135deg, var(--primary-light) 0%, var(--lighter-gray) 100%);
+}
+
+/* Contenedor principal */
+.login-container {
+    width: 100%;
+    max-width: 28rem;
+}
+
+/* Encabezado */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.login-subtitle {
+    color: var(--gray-color);
+    font-size: 0.9375rem;
+}
+
+/* Formulario */
+.login-form-container {
+    background-color: var(--white-color);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.login-form {
+    margin-top: 1.5rem;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    font-size: 0.9375rem;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--white-color);
+    transition: var(--transition);
+    color: var(--dark-color);
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    outline: none;
+}
+
+.input-group .icon {
+    position: absolute;
+    left: 1rem;
+    top: 2.5rem;
+    color: var(--gray-color);
+    font-size: 0.9375rem;
+}
+
+/* Botón */
+.login-button {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white-color);
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.login-button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Mensajes */
+.alert-message {
+    padding: 0.875rem 1rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert-message.error {
+    background-color: #fef2f2;
+    color: var(--error-color);
+    border: 1px solid #fee2e2;
+}
+
+.error-message {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Pie de página */
+.login-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--gray-color);
+}
+
+.register-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}
+
+.forgot-password {
+    display: block;
+    margin-top: 0.75rem;
+    color: var(--gray-color);
+    text-decoration: none;
+    font-size: 0.8125rem;
+}
+
+.forgot-password:hover {
+    color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .login-page-container {
+        padding: 1rem;
+    }
+    
+    .login-form-container {
+        padding: 1.5rem;
+    }
+    
+    .login-title {
+        font-size: 1.75rem;
+    }
+}

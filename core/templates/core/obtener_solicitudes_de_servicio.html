@@ -1,0 +1,130 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block stylesheet %}
+    <link href="{% static 'core/css/obtener_solicitudes.css' %}?v=4.1" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="section-title">Solicitudes de Servicio </h2>
+
+    <table border="1" cellpadding="10" class="mi-tabla">
+        <thead>
+            <tr>
+                <th>Nro SS</th>
+                <th>Cliente</th>
+                <th>Tipo SS</th>
+                <th>Fecha visita</th>
+                <th>Hora visita</th>
+                <th>Técnico</th>
+                <th>Descripción</th>
+                <th>Estado SS</th>
+                {% if tipousu == "Técnico" or tipousu == "Administrador" %}
+                    <th>Opciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for sol in lista %}
+            <tr>
+                <td>{{ sol.nrosol }}</td>
+                <td>{{ sol.nomcli }}</td>
+                <td>{{ sol.tiposol }}</td>
+                <td>{{ sol.fechavisita }}</td>
+                <td>{{ sol.hora }}</td>
+                <td>{{ sol.nomtec }}</td>
+                <td>{{ sol.descser }}</td>
+                <td>{{ sol.estadosol }}</td>
+                {% if tipousu == "Técnico" or tipousu == "Administrador" %}
+                <td>
+                    {% if sol.estadosol != "Cerrada" and sol.estadosol != "Anulada" %}
+                        <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Aceptada')">Aceptar</button>
+                    {% endif %}
+                    <button class="btn btn-secondary" onclick="abrirModal('{{ sol.nrosol }}', '{{ sol.fechavisita }}')">Modificar</button>
+                    {% if sol.estadosol == "Aceptada" or sol.estadosol == "Modificada" %}
+                        <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Cerrada')">Cerrar</button>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if tipousu == "Cliente" %}
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{% url 'ingresar_solicitud_servicio' %}" class="btn btn-success" style="margin: 20px;">
+        Ingresar una nueva solicitud de servicio
+    </a>
+</div>
+{% endif %}
+
+
+<!-- Modal -->
+<div id="modal" style="display:none; border:2px solid rgb(8, 73, 212); padding:10px; background:rgb(242, 243, 245); position:fixed; top:20%; left:33%; z-index:999;">
+  <h3>Modificar Solicitud de Servicio</h3>
+  <form id="formModificar">
+    <input type="hidden" name="nrosol" id="nrosol">
+    <label for="fechavisita">Nueva Fecha:</label><br>
+    <input type="date" name="fechavisita" id="fechavisita"><br><br>
+    <input type="hidden" name="nrosol" id="nrosol">
+    <label for="horavisita">Nueva Hora:</label><br>
+    <input type="time" name="horavisita" id="horavisita"><br><br>
+    <button class="btn btn-primary" type="submit">Modificar</button>
+    <button class="btn btn-primary" type="button" onclick="cerrarModal()">Cancelar</button>
+  </form>
+</div>
+
+<script>
+function abrirModal(nrosol, fecha) {
+  document.getElementById("nrosol").value = nrosol;
+  document.getElementById("fechavisita").value = fecha;
+  document.getElementById("modal").style.display = "block";
+}
+
+function cerrarModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+document.getElementById("formModificar").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  fetch("{% url 'actualizar_solicitud_servicio' %}", {
+    method: "POST",
+    headers: { "X-CSRFToken": "{{ csrf_token }}" },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === "ok") {
+      alert("Solicitud actualizada correctamente.");
+      location.reload();
+    } else {
+      alert("Error: " + data.message);
+    }
+  });
+});
+
+function actualizarEstado(nrosol, estado) {
+  fetch("{% url 'actualizar_solicitud_servicio' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}",
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `nrosol=${nrosol}&estadosol=${estado}`
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === "ok") {
+      alert("Estado actualizado correctamente.");
+      location.reload();
+    } else {
+      alert("Error: " + data.message);
+    }
+  });
+}
+</script>
+{% endblock %}

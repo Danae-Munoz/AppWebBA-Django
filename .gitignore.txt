@@ -1,0 +1,35 @@
+# Entorno virtual
+.venv/
+env/
+ENV/
+venv/
+venv.bak/
+*.pyc
+__pycache__/
+
+# Archivos de configuración del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos temporales de editores
+*.swp
+*.swo
+*.bak
+*.tmp
+*.orig
+
+# Archivos de VSCode
+.vscode/
+
+# Archivos de PyCharm
+.idea/
+
+# Base de datos SQLite
+*.sqlite3
+
+# Archivos de migraciones (opcional, si los generas automáticamente)
+**/migrations/*.pyc
+**/migrations/__pycache__/

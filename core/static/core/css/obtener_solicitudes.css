@@ -1,0 +1,23 @@
+.section-title {
+    font-size: 2rem;
+    color: var(--dark-color);
+    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    text-align: center; /* <--- Esto centra el texto */
+}
+.mi-tabla {
+  border-collapse: collapse; /* para que las celdas compartan borde y se vea mejor */
+  width: 100%; /* para que la tabla ocupe todo el ancho posible */
+  margin: 50px auto;
+  
+}
+.mi-tabla thead th {
+  color: #222222; /* un gris muy oscuro, casi negro */
+  font-weight: 600; /* para que se vea un poco más fuerte */
+}
+.service-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
