@@ -131,3 +131,32 @@ def reservar_producto(request):
     cursor = connection.cursor()
     cursor.execute("EXEC SP_RESERVAR_EQUIPO_ANWO %s, %s", [nroserieanwo, reservado])
     return JsonResponse({'ok': True})
+
+@csrf_exempt
+@api_view(['GET'])
+def obtener_guias_de_despacho(request):
+    if request.method == 'GET':
+        cursor = connection.cursor()
+        cursor.execute("EXEC SP_OBTENER_GUIAS_DE_DESPACHO")
+        results = cursor.fetchall()
+        data = []
+        for row in results:
+            data.append({
+                'nrogd': row[0],        # Número de guía
+                'nrofac': row[1],       # Número de factura
+                'nomprod': row[2],      # Nombre del producto (¡ahora sí!)
+                'estadogd': row[3],     # Estado ("Entregado", etc)
+                'cliente': row[4]       # Cliente (RUT o nombre)
+            })
+        return JsonResponse(data, safe=False)
+    
+
+@csrf_exempt
+@api_view(['POST'])
+def actualizar_estado_guia_despacho(request):
+    if request.method == 'POST':
+        nro_guia = request.data.get('nroGuia')
+        nuevo_estado = request.data.get('nuevoEstado')
+        cursor = connection.cursor()
+        cursor.execute("EXEC SP_ACTUALIZAR_ESTADO_GUIA_DESPACHO %s, %s", [nro_guia, nuevo_estado])
+        return JsonResponse({'exito': True}) 

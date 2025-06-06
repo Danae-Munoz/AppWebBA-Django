@@ -256,16 +256,28 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        gd.nrogd,
-        gd.nrofac,
-        gd.idprod,
-        gd.estadogd,
-        f.rutcli
+        gd.nrogd,            -- 0: Número de Guía
+        gd.nrofac,           -- 1: Número de Factura
+        p.nomprod,           -- 2: Nombre del Producto
+        gd.estadogd,         -- 3: Estado GD ("Entregado", "Despachado", ...)
+        f.rutcli             -- 4: Cliente (RUT)
     FROM dbo.GuiaDespacho AS gd
-    INNER JOIN dbo.Factura AS f
-           ON f.nrofac = gd.nrofac;      -- si también quieres filtrar por idprod, elimina INNER JOIN y usa ON (… AND gd.idprod=f.idprod)
+    INNER JOIN dbo.Factura AS f ON f.nrofac = gd.nrofac
+    INNER JOIN dbo.Producto AS p ON p.idprod = gd.idprod;
 END;
 """
+
+SP_ACTUALIZAR_ESTADO_GUIA_DESPACHO="""
+CREATE OR ALTER PROCEDURE [dbo].[SP_ACTUALIZAR_ESTADO_GUIA_DESPACHO]
+    @nroGuia INT,
+    @nuevoEstado NVARCHAR(50)
+AS
+BEGIN
+    UPDATE dbo.GuiaDespacho
+    SET estadogd = @nuevoEstado
+    WHERE nroGD = @nroGuia;
+END;
+""" 
 
 def exec_sql(query):
     with connection.cursor() as cursor:
@@ -412,4 +424,13 @@ def run():
     except:
         pass
         print('NO PASO')
+
+
+    try:
+        exec_sql(SP_ACTUALIZAR_ESTADO_GUIA_DESPACHO)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
+    
     
