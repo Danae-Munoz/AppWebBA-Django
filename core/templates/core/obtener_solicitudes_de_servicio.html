@@ -2,79 +2,253 @@
 {% load static %}
 
 {% block stylesheet %}
-    <link href="{% static 'core/css/obtener_solicitudes.css' %}?v=4.1" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --color-primary: #2563eb;
+        --color-primary-dark: #1d4ed8;
+        --color-secondary: #f97316;
+        --color-light: #ffffff;
+        --color-dark: #1e293b;
+        --color-text: #334155;
+        --color-border: #e2e8f0;
+        --color-error: #ef4444;
+        --color-background: #f8fafc;
+        --color-highlight: #ff0000;
+
+        --spacing-xs: 0.25rem;
+        --spacing-sm: 0.5rem;
+        --spacing-md: 1rem;
+        --spacing-lg: 1.5rem;
+        --spacing-xl: 2rem;
+
+        --border-radius-sm: 0.375rem;
+        --border-radius-md: 0.5rem;
+        --border-radius-lg: 0.75rem;
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+        --transition: all 0.3s ease;
+    }
+
+    .container-fluid {
+        padding: var(--spacing-lg);
+        background-color: var(--color-background);
+    }
+
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--color-primary);
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: var(--spacing-lg);
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 4px;
+        background-color: var(--color-secondary);
+        border-radius: 2px;
+    }
+
+    .table-container {
+        background-color: white;
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-md);
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    thead th {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 14px 16px;
+        text-align: left;
+        font-weight: 600;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    tbody td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--color-border);
+        color: var(--color-text);
+    }
+
+    tbody tr:hover {
+        background-color: rgba(0, 102, 204, 0.03);
+    }
+
+    .badge-status {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: var(--transition);
+    }
+
+    .btn-primary {
+        background-color: var(--color-primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-dark);
+    }
+
+    .btn-secondary {
+        background-color: var(--color-secondary);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #ea580c;
+    }
+
+    .btn-success {
+        background-color:#2563eb;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background-color: rgb(255, 170, 0);
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    #modal {
+        display: none;
+        border: 2px solid var(--color-primary);
+        padding: var(--spacing-md);
+        background: var(--color-background);
+        position: fixed;
+        top: 20%;
+        left: 33%;
+        z-index: 999;
+        box-shadow: var(--shadow-lg);
+        border-radius: var(--border-radius-md);
+    }
+
+    @media (max-width: 768px) {
+        .section-title {
+            font-size: 1.75rem;
+        }
+
+        #modal {
+            left: 10%;
+            width: 80%;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div>
-    <h2 class="section-title">Solicitudes de Servicio </h2>
+<div class="container-fluid">
+    <h2 class="section-title">Solicitudes de Servicio</h2>
 
-    <table border="1" cellpadding="10" class="mi-tabla">
-        <thead>
-            <tr>
-                <th>Nro SS</th>
-                <th>Cliente</th>
-                <th>Tipo SS</th>
-                <th>Fecha visita</th>
-                <th>Hora visita</th>
-                <th>Técnico</th>
-                <th>Descripción</th>
-                <th>Estado SS</th>
-                {% if tipousu == "Técnico" or tipousu == "Administrador" %}
-                    <th>Opciones</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for sol in lista %}
-            <tr>
-                <td>{{ sol.nrosol }}</td>
-                <td>{{ sol.nomcli }}</td>
-                <td>{{ sol.tiposol }}</td>
-                <td>{{ sol.fechavisita }}</td>
-                <td>{{ sol.hora }}</td>
-                <td>{{ sol.nomtec }}</td>
-                <td>{{ sol.descser }}</td>
-                <td>{{ sol.estadosol }}</td>
-                {% if tipousu == "Técnico" or tipousu == "Administrador" %}
-                <td>
-                    {% if sol.estadosol != "Cerrada" and sol.estadosol != "Anulada" %}
-                        <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Aceptada')">Aceptar</button>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nro SS</th>
+                    <th>Cliente</th>
+                    <th>Tipo SS</th>
+                    <th>Fecha visita</th>
+                    <th>Hora visita</th>
+                    <th>Técnico</th>
+                    <th>Descripción</th>
+                    <th>Estado SS</th>
+                    {% if tipousu == "Técnico" or tipousu == "Administrador" %}
+                        <th>Opciones</th>
                     {% endif %}
-                    <button class="btn btn-secondary" onclick="abrirModal('{{ sol.nrosol }}', '{{ sol.fechavisita }}')">Modificar</button>
-                    {% if sol.estadosol == "Aceptada" or sol.estadosol == "Modificada" %}
-                        <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Cerrada')">Cerrar</button>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sol in lista %}
+                <tr>
+                    <td>{{ sol.nrosol }}</td>
+                    <td>{{ sol.nomcli }}</td>
+                    <td>{{ sol.tiposol }}</td>
+                    <td>{{ sol.fechavisita }}</td>
+                    <td>{{ sol.hora }}</td>
+                    <td>{{ sol.nomtec }}</td>
+                    <td>{{ sol.descser }}</td>
+                    <td>
+                        <span class="badge-status" style="background-color: 
+                            {% if sol.estadosol == 'Cerrada' %}#38a16920; color: #2f855a;
+                            {% elif sol.estadosol == 'Modificada' %}#3182ce20; color: #2c5282;
+                            {% elif sol.estadosol == 'Anulada' %}#dd6b2020; color: #c05621;
+                            {% elif sol.estadosol == 'Aceptada' %}#3182ce30; color: #3182ce;
+                            {% else %}#71809620; color: #4a5568;{% endif %}">
+                            {{ sol.estadosol }}
+                        </span>
+                    </td>
+                    {% if tipousu == "Técnico" or tipousu == "Administrador" %}
+                    <td>
+                        {% if sol.estadosol != "Cerrada" and sol.estadosol != "Anulada" %}
+                            <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Aceptada')">Aceptar</button>
+                        {% endif %}
+                        <button class="btn btn-secondary" onclick="abrirModal('{{ sol.nrosol }}', '{{ sol.fechavisita }}')">Modificar</button>
+                        {% if sol.estadosol == "Aceptada" or sol.estadosol == "Modificada" %}
+                            <button class="btn btn-primary" onclick="actualizarEstado('{{ sol.nrosol }}', 'Cerrada')">Cerrar</button>
+                        {% endif %}
+                    </td>
                     {% endif %}
-                </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-{% if tipousu == "Cliente" %}
-<div style="text-align: center; margin-top: 20px;">
-    <a href="{% url 'ingresar_solicitud_servicio' %}" class="btn btn-success" style="margin: 20px;">
-        Ingresar una nueva solicitud de servicio
-    </a>
-</div>
-{% endif %}
+    {% if tipousu == "Cliente" %}
+    <div class="text-center" style="margin-top: 20px;">
+        <a href="{% url 'ingresar_solicitud_servicio' %}" class="btn btn-success"
+          style="font-size: 1.1rem; padding: 12px 24px;">
+          Ingresar una nueva solicitud de servicio
+        </a>
 
+    </div>
+    {% endif %}
 
-<!-- Modal -->
-<div id="modal" style="display:none; border:2px solid rgb(8, 73, 212); padding:10px; background:rgb(242, 243, 245); position:fixed; top:20%; left:33%; z-index:999;">
-  <h3>Modificar Solicitud de Servicio</h3>
-  <form id="formModificar">
-    <input type="hidden" name="nrosol" id="nrosol">
-    <label for="fechavisita">Nueva Fecha:</label><br>
-    <input type="date" name="fechavisita" id="fechavisita"><br><br>
-    <input type="hidden" name="nrosol" id="nrosol">
-    <label for="horavisita">Nueva Hora:</label><br>
-    <input type="time" name="horavisita" id="horavisita"><br><br>
-    <button class="btn btn-primary" type="submit">Modificar</button>
-    <button class="btn btn-primary" type="button" onclick="cerrarModal()">Cancelar</button>
-  </form>
+    <!-- Modal -->
+    <div id="modal">
+        <h3>Modificar Solicitud de Servicio</h3>
+        <form id="formModificar">
+            <input type="hidden" name="nrosol" id="nrosol">
+            <label for="fechavisita">Nueva Fecha:</label><br>
+            <input type="date" name="fechavisita" id="fechavisita"><br><br>
+            <label for="horavisita">Nueva Hora:</label><br>
+            <input type="time" name="horavisita" id="horavisita"><br><br>
+            <button class="btn btn-primary" type="submit">Modificar</button>
+            <button class="btn btn-secondary" type="button" onclick="cerrarModal()">Cancelar</button>
+        </form>
+    </div>
 </div>
 
 <script>
