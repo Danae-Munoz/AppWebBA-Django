@@ -91,29 +91,30 @@
     {% if list %}
         <div class="row">
             {% for producto in list %}
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-4">
-                    <div class="card h-100 shadow-sm tienda-card">
-                        <a href="{% url 'ficha' producto.idprod %}" class="text-decoration-none">
-                            <img src="/media/{{ producto.imagen }}" class="card-img-top tienda-card-img" alt="{{ producto.nomprod }}">
-                            <div class="card-body">
-                                <div class="mt-auto">
-                                    {% if producto.disponibilidad|lower == "agotado" %}
-                                        <span class="badge badge-agotado">PRODUCTO {{ producto.disponibilidad }}</span>
-                                    {% else %}
-                                        <span class="badge bg-primary">PRODUCTO {{ producto.disponibilidad }}</span>
-                                    {% endif %}
-                                </div>
+               {% if producto.nomprod|lower != "instalación" and producto.nomprod|lower != "mantención" and producto.nomprod|lower != "reparación" %}
+                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 mb-4">
+                        <div class="card h-100 shadow-sm tienda-card">
+                            <a href="{% url 'ficha' producto.idprod %}" class="text-decoration-none">
+                                <img src="/media/{{ producto.imagen }}" class="card-img-top tienda-card-img" alt="{{ producto.nomprod }}">
+                                <div class="card-body">
+                                    <div class="mt-auto">
+                                        {% if producto.disponibilidad|lower == "agotado" %}
+                                            <span class="badge badge-agotado">PRODUCTO {{ producto.disponibilidad }}</span>
+                                        {% else %}
+                                            <span class="badge bg-primary">PRODUCTO {{ producto.disponibilidad }}</span>
+                                        {% endif %}
+                                    </div>
 
-                                <br>
-                                <h5 class="card-title">{{ producto.nomprod }}</h5>
-                               
-                                <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
-                                
-                            </div>
-                        </a>
+                                    <br>
+                                    <h5 class="card-title">{{ producto.nomprod }}</h5>
+                                    <p class="card-text text-muted">{{ producto.descprod|truncatewords:20 }}</p>
+                                </div>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                {% endif %}
             {% endfor %}
+
         </div>
     {% else %}
         <div class="text-center my-5 py-5">
