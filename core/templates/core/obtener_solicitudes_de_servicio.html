@@ -167,6 +167,8 @@
     }
 </style>
 {% endblock %}
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {% block content %}
 <div class="container-fluid">
@@ -250,7 +252,8 @@
         </form>
     </div>
 </div>
-
+<!-- SweetAlert2 CDN (va aquí, antes de tu script) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function abrirModal(nrosol, fecha) {
   document.getElementById("nrosol").value = nrosol;
@@ -273,10 +276,19 @@ document.getElementById("formModificar").addEventListener("submit", function(e) 
   .then(response => response.json())
   .then(data => {
     if (data.status === "ok") {
-      alert("Solicitud actualizada correctamente.");
-      location.reload();
+      Swal.fire({
+        icon: 'success',
+        title: '¡Solicitud actualizada!',
+        text: 'La solicitud fue modificada correctamente.',
+        confirmButtonColor: '#2563eb'
+      }).then(() => location.reload());
     } else {
-      alert("Error: " + data.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message,
+        confirmButtonColor: '#ef4444'
+      });
     }
   });
 });
@@ -293,12 +305,22 @@ function actualizarEstado(nrosol, estado) {
   .then(response => response.json())
   .then(data => {
     if (data.status === "ok") {
-      alert("Estado actualizado correctamente.");
-      location.reload();
+      Swal.fire({
+        icon: 'success',
+        title: '¡Estado actualizado!',
+        text: 'El estado fue cambiado correctamente.',
+        confirmButtonColor: '#2563eb'
+      }).then(() => location.reload());
     } else {
-      alert("Error: " + data.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: data.message,
+        confirmButtonColor: '#ef4444'
+      });
     }
   });
 }
+
 </script>
 {% endblock %}

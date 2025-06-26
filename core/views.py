@@ -585,16 +585,21 @@ def actualizar_solicitud_servicio(request):
     if request.method == "POST":
         nrosol = request.POST.get("nrosol")
         nueva_fecha = request.POST.get("fechavisita") or None
+        nueva_hora = request.POST.get("horavisita") or None
         nuevo_estado = request.POST.get("estadosol") or None
 
         try:
             with connection.cursor() as cursor:
-                cursor.callproc("SP_ACTUALIZAR_SOLICITUD_DE_SERVICIO", [nrosol, nueva_fecha, nuevo_estado])
+                cursor.execute(
+                    "EXEC SP_ACTUALIZAR_SOLICITUD_DE_SERVICIO %s, %s, %s, %s",
+                    [nrosol, nueva_fecha, nueva_hora, nuevo_estado]
+                )
+
             return JsonResponse({"status": "ok"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)})
-
     return JsonResponse({"status": "error", "message": "Método no permitido"})
+
 
 
 #listar sin los servicios

@@ -32,7 +32,7 @@ END
 """
 
 SP_OBTENER_PRODUCTOS = """
-CREATE PROCEDURE [dbo].[SP_OBTENER_PRODUCTOS]
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_PRODUCTOS]
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -42,7 +42,7 @@ END
 """
 
 SP_OBTENER_SOLICITUDES_DE_SERVICIO = """
-CREATE PROCEDURE [dbo].[SP_OBTENER_SOLICITUDES_DE_SERVICIO]
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_SOLICITUDES_DE_SERVICIO]
 	@tipousu VARCHAR(50),
 	@rut     VARCHAR(50)
 AS
@@ -64,7 +64,7 @@ BEGIN
 			usucli.first_name + ' '  + usucli.last_name AS nomcli, 
 			sol.tiposol,
 			sol.fechavisita, 
-			'10:00:00'                                  AS hora,
+			sol.horavisita                                AS hora,
 			usutec.first_name + ' '  + usutec.last_name AS nomtec,
 			sol.descsol       + ': ' + fac.descfac      AS descser,
 			sol.estadosol
@@ -86,7 +86,7 @@ BEGIN
 			usucli.first_name + ' '  + usucli.last_name AS nomcli, 
 			sol.tiposol,
 			sol.fechavisita, 
-			'10:00:00'                                  AS hora,
+			sol.horavisita                                 AS hora,
 			usutec.first_name + ' '  + usutec.last_name AS nomtec,
 			sol.descsol       + ': ' + fac.descfac      AS descser,
 			sol.estadosol
@@ -108,7 +108,7 @@ BEGIN
 			usucli.first_name + ' '  + usucli.last_name AS nomcli, 
 			sol.tiposol,
 			sol.fechavisita, 
-			'10:00:00'                                  AS hora,
+			sol.horavisita                                  AS hora,
 			usutec.first_name + ' '  + usutec.last_name AS nomtec,
 			sol.descsol       + ': ' + fac.descfac      AS descser,
 			sol.estadosol
@@ -126,8 +126,27 @@ BEGIN
 END
 """
 
+SP_ACTUALIZAR_SOLICITUD_DE_SERVICIO ="""
+CREATE OR ALTER PROCEDURE [dbo].[SP_ACTUALIZAR_SOLICITUD_DE_SERVICIO]
+    @nrosol INT,
+    @fechavisita DATE = NULL,
+    @horavisita TIME = NULL,
+    @estadosol VARCHAR(50) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE SolicitudServicio
+    SET 
+        fechavisita = ISNULL(@fechavisita, fechavisita),
+        horavisita = ISNULL(@horavisita, horavisita),
+        estadosol  = ISNULL(@estadosol, estadosol)
+    WHERE nrosol = @nrosol;
+END
+"""
+
 SP_OBTENER_TODOS_LOS_USUARIOS = """
-CREATE PROCEDURE [dbo].[SP_OBTENER_TODOS_LOS_USUARIOS]
+CREATE OR ALTER PROCEDURE [dbo].[SP_OBTENER_TODOS_LOS_USUARIOS]
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -141,7 +160,7 @@ END
 """
 
 SP_RESERVAR_EQUIPO_ANWO = """
-CREATE PROCEDURE [dbo].[SP_RESERVAR_EQUIPO_ANWO]
+CREATE OR ALTER PROCEDURE [dbo].[SP_RESERVAR_EQUIPO_ANWO]
     @nroserieanwo NVARCHAR(100),
 	@reservado NVARCHAR(1)
 AS

@@ -84,12 +84,14 @@
                                             </a>
                                         </li>
                                     {% endif %}
+                                    {% if user.perfilusuario.tipousu == "Técnico" %}
 
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'obtener_solicitudes_de_servicio' %}">
-                                            <i class="fas fa-folder-open me-2"></i> Mis Solicitudes
-                                        </a>
-                                    </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'obtener_solicitudes_de_servicio' %}">
+                                                <i class="fas fa-folder-open me-2"></i> Mis Solicitudes
+                                            </a>
+                                        </li>
+                                    {% endif %}
 
                                     {% if user.perfilusuario.tipousu == "Cliente" %}
                                         <li>
@@ -100,6 +102,11 @@
                                         <li>
                                             <a class="dropdown-item" href="{% url 'facturas' user.perfilusuario.rut %}">
                                                 <i class="fas fa-credit-card me-2"></i> Mis Compras
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'obtener_solicitudes_de_servicio' %}">
+                                                <i class="fas fa-folder-open me-2"></i> Mis Solicitudes
                                             </a>
                                         </li>
                                     {% endif %}
