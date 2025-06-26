@@ -451,5 +451,14 @@ def run():
     except:
         pass
         print('NO PASO')
+
+    try:
+        exec_sql(SP_ACTUALIZAR_SOLICITUD_DE_SERVICIO)
+        print('SI PASO')
+    except:
+        pass
+        print('NO PASO')
+
+        
     
     
